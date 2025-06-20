@@ -1,26 +1,26 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-
 Globals:
   Function:
     Timeout: 30
     MemorySize: 512
     Runtime: nodejs20.x
     Architectures:
-      - x86_64
-
+    - x86_64
 Resources:
   SketchApp:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: sketch-app/
+      CodeUri: SketchApp
       Handler: index.handler
       Environment:
         Variables:
-          SKETCH_TABLE: !Ref SketchTable
+          SKETCH_TABLE:
+            Ref: SketchTable
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SketchTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SketchTable
       Events:
         SketchApi:
           Type: Api
@@ -32,11 +32,12 @@ Resources:
           Properties:
             Path: /
             Method: ANY
-
+    Metadata:
+      SamResourceId: SketchApp
   AiAssistFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./ai-assist/
+      CodeUri: AiAssistFunction
       Handler: index.handler
       Runtime: nodejs20.x
       MemorySize: 512
@@ -52,23 +53,28 @@ Resources:
           Properties:
             Path: /ai-assist
             Method: OPTIONS
-
+    Metadata:
+      SamResourceId: AiAssistFunction
   SketchTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${AWS::StackName}-sketches"
+      TableName:
+        Fn::Sub: ${AWS::StackName}-sketches
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: sketchId
-          AttributeType: S
+      - AttributeName: sketchId
+        AttributeType: S
       KeySchema:
-        - AttributeName: sketchId
-          KeyType: HASH
-
+      - AttributeName: sketchId
+        KeyType: HASH
 Outputs:
   SketchApi:
-    Description: "API Gateway endpoint URL for Sketch App"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: API Gateway endpoint URL for Sketch App
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
   SketchFunction:
-    Description: "Sketch Lambda Function ARN"
-    Value: !GetAtt SketchApp.Arn
+    Description: Sketch Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - SketchApp
+      - Arn
