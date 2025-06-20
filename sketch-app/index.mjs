@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 // Add AWS SDK v3 Bedrock client import
-import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
 
 // In-memory DB for local testing
-const sketches = new Map();
+const sketches = new Map()
 
 // Helper: Call Bedrock API for 4 styles (mocked for now)
 async function callBedrockAIStyles(base64Png) {
@@ -11,12 +11,12 @@ async function callBedrockAIStyles(base64Png) {
   // For now, return 4 mocked variations (just tint the image data URLs for demo)
   // You would replace this with actual Bedrock calls for each style
   const styles = [
-    { name: "Style A", image: base64Png }, // original
-    { name: "Style B", image: base64Png.replace("data:image/png", "data:image/png;filter=grayscale") }, // fake grayscale
-    { name: "Style C", image: base64Png.replace("data:image/png", "data:image/png;filter=sepia") }, // fake sepia
-    { name: "Style D", image: base64Png.replace("data:image/png", "data:image/png;filter=invert") } // fake invert
-  ];
-  return styles;
+    { name: 'Style A', image: base64Png }, // original
+    { name: 'Style B', image: base64Png.replace('data:image/png', 'data:image/png;filter=grayscale') }, // fake grayscale
+    { name: 'Style C', image: base64Png.replace('data:image/png', 'data:image/png;filter=sepia') }, // fake sepia
+    { name: 'Style D', image: base64Png.replace('data:image/png', 'data:image/png;filter=invert') } // fake invert
+  ]
+  return styles
 }
 
 const html = `<!DOCTYPE html>
@@ -32,6 +32,11 @@ const html = `<!DOCTYPE html>
     <canvas id="canvas" width="800" height="400"></canvas><br>
     <button onclick="clearCanvas()">Clear</button>
     <button onclick="saveSketch()">Save Sketch</button>
+    <select id="model-select">
+      <option value="stability.stable-diffusion-xl-v0">Stable Diffusion XL</option>
+      <option value="stability.stable-diffusion-v1">Stable Diffusion v1</option>
+      <option value="amazon.titan-image-generator-v1">Titan Image Generator</option>
+    </select>
     <button onclick="aiAssist()">AI Assist</button>
     <div id="status"></div>
     <div id="ai-options"></div>
@@ -71,7 +76,12 @@ const html = `<!DOCTYPE html>
       const data = canvas.toDataURL();
       document.getElementById('status').textContent = 'AI working...';
       document.getElementById('ai-options').innerHTML = '';
-      const res = await fetch('/ai-assist', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:data})});
+      const model = document.getElementById('model-select').value;
+      const res = await fetch('/ai-assist', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({image:data, model})
+      });
       const result = await res.json();
       // result.styles: [{name, image}]
       const optionsDiv = document.getElementById('ai-options');
@@ -98,43 +108,43 @@ const html = `<!DOCTYPE html>
     loadSketches();
   </script>
 </body>
-</html>`;
+</html>`
 
 const response = (status, body, headers={}) => ({
   statusCode: status,
   headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', ...headers },
   body: typeof body === 'string' ? body : JSON.stringify(body)
-});
+})
 const htmlResponse = html => ({
   statusCode: 200,
   headers: { 'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*' },
   body: html
-});
+})
 
 export const handler = async (event) => {
-  const { httpMethod, path, body } = event;
-  if(httpMethod === 'OPTIONS') return response(200, 'OK');
-  if(httpMethod === 'GET' && (path === '/' || path === '')) return htmlResponse(html);
+  const { httpMethod, path, body } = event
+  if(httpMethod === 'OPTIONS') return response(200, 'OK')
+  if(httpMethod === 'GET' && (path === '/' || path === '')) return htmlResponse(html)
   if(path === '/sketches') {
-    if(httpMethod === 'GET') return response(200, Array.from(sketches.values()));
+    if(httpMethod === 'GET') return response(200, Array.from(sketches.values()))
     if(httpMethod === 'POST') {
-      const data = JSON.parse(body);
-      const id = uuidv4();
-      sketches.set(id, { id, ...data });
-      return response(201, { id, message: 'Sketch saved!' });
+      const data = JSON.parse(body)
+      const id = uuidv4()
+      sketches.set(id, { id, ...data })
+      return response(201, { id, message: 'Sketch saved!' })
     }
   }
   if(path.startsWith('/sketches/')) {
-    const id = path.split('/')[2];
-    if(httpMethod === 'GET') return sketches.has(id) ? response(200, sketches.get(id)) : response(404, { error: 'Not found' });
-    if(httpMethod === 'DELETE') { sketches.delete(id); return response(200, { message: 'Deleted' }); }
+    const id = path.split('/')[2]
+    if(httpMethod === 'GET') return sketches.has(id) ? response(200, sketches.get(id)) : response(404, { error: 'Not found' })
+    if(httpMethod === 'DELETE') { sketches.delete(id); return response(200, { message: 'Deleted' }) }
   }
   // /ai-assist returns 4 styles
   if(path === '/ai-assist' && httpMethod === 'POST') {
-    const data = JSON.parse(body);
-    const inputImage = data.image;
-    const styles = await callBedrockAIStyles(inputImage);
-    return response(200, { styles });
+    const data = JSON.parse(body)
+    const inputImage = data.image
+    const styles = await callBedrockAIStyles(inputImage)
+    return response(200, { styles })
   }
-  return response(404, { error: 'Not found' });
-};
+  return response(404, { error: 'Not found' })
+}
