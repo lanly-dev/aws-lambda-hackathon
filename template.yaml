@@ -47,11 +47,6 @@ Resources:
           Properties:
             Path: /ai-assist
             Method: POST
-        AiAssistOptions:
-          Type: Api
-          Properties:
-            Path: /ai-assist
-            Method: OPTIONS
 
   SketchTable:
     Type: AWS::DynamoDB::Table

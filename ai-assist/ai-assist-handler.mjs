@@ -38,10 +38,8 @@ async function callBedrockStyle(base64Png, prompt, modelId) {
 export const handler = async (event) => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    'Access-Control-Allow-Headers': 'Content-Type'
   }
-  if(event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: cors, body: '' }
   try {
     const { image, model } = JSON.parse(event.body)
     // Use mock or real AI based on AI_MODE env var
