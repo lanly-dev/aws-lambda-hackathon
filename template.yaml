@@ -33,7 +33,7 @@ Resources:
             Path: /
             Method: ANY
 
-  AiAssistFunction:
+  AiAssist:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./ai-assist/
@@ -41,6 +41,9 @@ Resources:
       Runtime: nodejs20.x
       MemorySize: 512
       Timeout: 30
+      Environment:
+        Variables:
+          AI_MODE: dev # Change to 'prod' for production
       Events:
         AiAssistApi:
           Type: Api
