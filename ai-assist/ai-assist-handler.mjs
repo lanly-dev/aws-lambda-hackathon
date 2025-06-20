@@ -1,5 +1,21 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
 
+// Helper: Return 4 mock images for dev/testing
+function getMockStyles() {
+  const mockImages = [
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+1n1cAAAAASUVORK5CYII=', // red
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8AAAgMBAJcF+ZcAAAAASUVORK5CYII=', // green
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8zwAAAgMBAJcF+ZcAAAAASUVORK5CYII=', // blue
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAwMCAO+1n1cAAAAASUVORK5CYII='  // black
+  ]
+  return [
+    { name: 'Style A', image: mockImages[0] },
+    { name: 'Style B', image: mockImages[1] },
+    { name: 'Style C', image: mockImages[2] },
+    { name: 'Style D', image: mockImages[3] }
+  ]
+}
+
 // Helper: Call Bedrock for a single style
 async function callBedrockStyle(base64Png, prompt, modelId) {
   const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' })
@@ -28,7 +44,12 @@ export const handler = async (event) => {
   if(event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: cors, body: '' }
   try {
     const { image, model } = JSON.parse(event.body)
-    // Generate 4 styles using different prompts
+    // Use mock or real AI based on AI_MODE env var
+    if (process.env.AI_MODE === 'dev') {
+      const styles = getMockStyles()
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ styles }) }
+    }
+    // Generate 4 styles using different prompts (prod)
     const prompts = [
       'A vibrant cartoon style',
       'A realistic painting style',

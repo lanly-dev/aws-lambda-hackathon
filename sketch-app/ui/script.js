@@ -1,37 +1,34 @@
-// JavaScript for Sketch App with AI Assist
-// Handles drawing, saving, loading, and AI assist features
-
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 let drawing = false
 
 function getCanvasCoords(e) {
-  const rect = canvas.getBoundingClientRect();
-  let x, y;
+  const rect = canvas.getBoundingClientRect()
+  let x, y
   if (e.touches && e.touches.length) {
-    x = e.touches[0].clientX - rect.left;
-    y = e.touches[0].clientY - rect.top;
+    x = e.touches[0].clientX - rect.left
+    y = e.touches[0].clientY - rect.top
   } else {
-    x = e.offsetX !== undefined ? e.offsetX : e.clientX - rect.left;
-    y = e.offsetY !== undefined ? e.offsetY : e.clientY - rect.top;
+    x = e.offsetX !== undefined ? e.offsetX : e.clientX - rect.left
+    y = e.offsetY !== undefined ? e.offsetY : e.clientY - rect.top
   }
   // Scale for high-DPI or CSS scaling
-  x *= canvas.width / rect.width;
-  y *= canvas.height / rect.height;
-  return { x, y };
+  x *= canvas.width / rect.width
+  y *= canvas.height / rect.height
+  return { x, y }
 }
 
 canvas.onmousedown = e => {
-  drawing = true;
-  const { x, y } = getCanvasCoords(e);
-  ctx.beginPath();
-  ctx.moveTo(x, y);
+  drawing = true
+  const { x, y } = getCanvasCoords(e)
+  ctx.beginPath()
+  ctx.moveTo(x, y)
 }
 canvas.onmousemove = e => {
   if (drawing) {
-    const { x, y } = getCanvasCoords(e);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    const { x, y } = getCanvasCoords(e)
+    ctx.lineTo(x, y)
+    ctx.stroke()
   }
 }
 canvas.onmouseup = () => drawing = false
@@ -68,11 +65,7 @@ async function aiAssist() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: data, model })
   })
-  console.log('🥇🥇🥇', res)
   const result = await res.json()
-  // Debug: log the result to check its structure
-  console.log('AI Assist result:', result)
-  // result.styles: [{name, image}]
   const optionsDiv = document.getElementById('ai-options')
   optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
   console.log('Styles:', result)
@@ -82,10 +75,8 @@ async function aiAssist() {
     img.width = 160
     img.title = style.name
     img.onclick = () => {
-      // Highlight selection
       Array.from(optionsDiv.querySelectorAll('img')).forEach(im => im.classList.remove('selected'))
       img.classList.add('selected')
-      // Apply to canvas
       const i = new Image()
       i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
       i.src = style.image
