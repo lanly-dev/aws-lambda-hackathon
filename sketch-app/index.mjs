@@ -16,7 +16,6 @@ const htmlResponse = html => ({
 
 export const handler = async (event) => {
   const { httpMethod, path, body } = event
-  if (httpMethod === 'OPTIONS') return response(200, 'OK')
   if (httpMethod === 'GET' && (path === '/' || path === '' || path === '/ui/index.html')) {
     return htmlResponse(readFileSync(new URL('./ui/index.html', import.meta.url), 'utf8'))
   }

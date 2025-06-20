@@ -60,10 +60,11 @@ async function aiAssist() {
   document.getElementById('status').textContent = 'AI working...'
   document.getElementById('ai-options').innerHTML = ''
   const model = document.getElementById('model-select').value
+  const styleCount = parseInt(document.getElementById('style-count-select').value, 10) || 4
   const res = await fetch('/ai-assist', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: data, model })
+    body: JSON.stringify({ image: data, model, styleCount })
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')

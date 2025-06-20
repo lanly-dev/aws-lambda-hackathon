@@ -16,7 +16,6 @@ function getMockStyles() {
   ]
 }
 
-// Helper: Call Bedrock for a single style
 async function callBedrockStyle(base64Png, prompt, modelId) {
   const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' })
   const input = {
@@ -41,19 +40,21 @@ export const handler = async (event) => {
     'Access-Control-Allow-Headers': 'Content-Type'
   }
   try {
-    const { image, model } = JSON.parse(event.body)
+    const { image, model, styleCount } = JSON.parse(event.body)
+    const count = Math.max(1, Math.min(Number(styleCount) || 4, 4))
     // Use mock or real AI based on AI_MODE env var
     if (process.env.AI_MODE === 'dev') {
-      const styles = getMockStyles()
+      const allStyles = getMockStyles()
+      const styles = allStyles.slice(0, count)
       return { statusCode: 200, headers: cors, body: JSON.stringify({ styles }) }
     }
-    // Generate 4 styles using different prompts (prod)
+    // Generate N styles using different prompts (prod)
     const prompts = [
       'A vibrant cartoon style',
       'A realistic painting style',
       'A pencil sketch style',
       'A futuristic digital art style'
-    ]
+    ].slice(0, count)
     const styles = await Promise.all(prompts.map(async (prompt, idx) => ({
       name: `Style ${String.fromCharCode(65 + idx)}`,
       image: await callBedrockStyle(image, prompt, model)
