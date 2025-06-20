@@ -1,0 +1,6 @@
+{
+  "name": "ai-assist-handler",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "ai-assist-handler.mjs"
+}

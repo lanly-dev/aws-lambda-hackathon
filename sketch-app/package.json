@@ -1,0 +1,9 @@
+{
+  "name": "sketch-app-lambda",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
+}

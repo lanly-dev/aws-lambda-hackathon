@@ -1,0 +1,3 @@
+<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+
+This is a serverless sketch app project with AI assist. The backend is AWS Lambda (Node.js 20.x) with endpoints for /sketches and /ai-assist. The /ai-assist endpoint receives a base64 PNG, calls a placeholder AI function, and returns a new image (mocked). DynamoDB is used for sketch storage. The frontend is HTML5/JS with a canvas and an 'AI Assist' button. Please generate code and comments accordingly.

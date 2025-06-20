@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "sam build",
+      "type": "shell",
+      "command": "sam build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "sam local start-api",
+      "type": "shell",
+      "command": "sam local start-api",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
