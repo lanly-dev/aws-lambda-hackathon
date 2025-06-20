@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sketch App with AI Assist</title>
+  <style>
+    body{font-family:sans-serif;background:#f0f0f0;margin:0;padding:0;}
+    #main{max-width:900px;margin:40px auto;background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 8px #0001;}
+    canvas{border:1px solid #ccc;border-radius:4px;display:block;margin:0 auto 16px;}
+    button{margin:0 8px 8px 0;}
+    #ai-options img{margin:4px;cursor:pointer;border:2px solid transparent;border-radius:4px;}
+    #ai-options img.selected{border-color:#0078d7;}
+  </style>
+</head>
+<body>
+  <div id="main">
+    <h1>Sketch App with AI Assist</h1>
+    <canvas id="canvas" width="800" height="400"></canvas><br>
+    <button onclick="clearCanvas()">Clear</button>
+    <button onclick="saveSketch()">Save Sketch</button>
+    <select id="model-select">
+      <option value="stability.stable-diffusion-xl-v0">Stable Diffusion XL</option>
+      <option value="stability.stable-diffusion-v1">Stable Diffusion v1</option>
+      <option value="amazon.titan-image-generator-v1">Titan Image Generator</option>
+    </select>
+    <button onclick="aiAssist()">AI Assist</button>
+    <div id="status"></div>
+    <div id="ai-options"></div>
+    <h2>Saved Sketches</h2>
+    <div id="sketches"></div>
+  </div>
+  <script src="ui/script.js"></script>
+</body>
+</html>

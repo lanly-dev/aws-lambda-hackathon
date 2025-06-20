@@ -21,7 +21,7 @@ async function callBedrockAIStyles(base64Png) {
 }
 
 // Load HTML from a separate file for IDE linting/highlighting
-const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8')
+const html = readFileSync(new URL('./ui/index.html', import.meta.url), 'utf8')
 
 
 const response = (status, body, headers={}) => ({
@@ -38,7 +38,18 @@ const htmlResponse = html => ({
 export const handler = async (event) => {
   const { httpMethod, path, body } = event
   if (httpMethod === 'OPTIONS') return response(200, 'OK')
-  if (httpMethod === 'GET' && (path === '/' || path === '')) return htmlResponse(html)
+  if (httpMethod === 'GET' && (path === '/' || path === '' || path === '/ui/index.html')) {
+    // Serve the HTML UI
+    return htmlResponse(readFileSync(new URL('./ui/index.html', import.meta.url), 'utf8'))
+  }
+  if (httpMethod === 'GET' && path === '/ui/script.js') {
+    // Serve the JS file
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/javascript', 'Access-Control-Allow-Origin': '*' },
+      body: readFileSync(new URL('./ui/script.js', import.meta.url), 'utf8')
+    }
+  }
   if (path === '/sketches') {
     if (httpMethod === 'GET') return response(200, Array.from(sketches.values()))
     if (httpMethod === 'POST') {
