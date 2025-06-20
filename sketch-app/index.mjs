@@ -1,28 +1,25 @@
-import { v4 as uuidv4 } from 'uuid'
-// Add AWS SDK v3 Bedrock client import
-import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
 import { readFileSync } from 'fs'
 
 // In-memory DB for local testing
 const sketches = new Map()
 
-// Helper: Call Bedrock API for 4 styles (mocked for now)
-async function callBedrockAIStyles(base64Png) {
-  // In production, call Bedrock with different prompts or model params for each style
-  // For now, return 4 mocked variations (just tint the image data URLs for demo)
-  // You would replace this with actual Bedrock calls for each style
-  const styles = [
-    { name: 'Style A', image: base64Png }, // original
-    { name: 'Style B', image: base64Png.replace('data:image/png', 'data:image/png;filter=grayscale') }, // fake grayscale
-    { name: 'Style C', image: base64Png.replace('data:image/png', 'data:image/png;filter=sepia') }, // fake sepia
-    { name: 'Style D', image: base64Png.replace('data:image/png', 'data:image/png;filter=invert') } // fake invert
+// Helper: Return 4 mock images for local testing
+async function callBedrockAIStyles() {
+  const mockImages = [
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+1n1cAAAAASUVORK5CYII=', // red
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8AAAgMBAJcF+ZcAAAAASUVORK5CYII=', // green
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8zwAAAgMBAJcF+ZcAAAAASUVORK5CYII=', // blue
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAwMCAO+1n1cAAAAASUVORK5CYII='  // black
   ]
-  return styles
+  return [
+    { name: 'Style A', image: mockImages[0] },
+    { name: 'Style B', image: mockImages[1] },
+    { name: 'Style C', image: mockImages[2] },
+    { name: 'Style D', image: mockImages[3] }
+  ]
 }
 
-// Load HTML from a separate file for IDE linting/highlighting
 const html = readFileSync(new URL('./ui/index.html', import.meta.url), 'utf8')
-
 
 const response = (status, body, headers={}) => ({
   statusCode: status,
@@ -39,11 +36,9 @@ export const handler = async (event) => {
   const { httpMethod, path, body } = event
   if (httpMethod === 'OPTIONS') return response(200, 'OK')
   if (httpMethod === 'GET' && (path === '/' || path === '' || path === '/ui/index.html')) {
-    // Serve the HTML UI
     return htmlResponse(readFileSync(new URL('./ui/index.html', import.meta.url), 'utf8'))
   }
   if (httpMethod === 'GET' && path === '/ui/script.js') {
-    // Serve the JS file
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/javascript', 'Access-Control-Allow-Origin': '*' },
@@ -54,7 +49,7 @@ export const handler = async (event) => {
     if (httpMethod === 'GET') return response(200, Array.from(sketches.values()))
     if (httpMethod === 'POST') {
       const data = JSON.parse(body)
-      const id = uuidv4()
+      const id = Date.now().toString()
       sketches.set(id, { id, ...data })
       return response(201, { id, message: 'Sketch saved!' })
     }
@@ -67,12 +62,13 @@ export const handler = async (event) => {
       return response(200, { message: 'Deleted' })
     }
   }
-  // /ai-assist returns 4 styles
   if (path === '/ai-assist' && httpMethod === 'POST') {
-    const data = JSON.parse(body)
-    const inputImage = data.image
-    const styles = await callBedrockAIStyles(inputImage)
-    return response(200, { styles })
+    const styles = await callBedrockAIStyles()
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ styles })
+    }
   }
   return response(404, { error: 'Not found' })
 }

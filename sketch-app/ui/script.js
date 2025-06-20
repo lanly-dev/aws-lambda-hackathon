@@ -39,10 +39,14 @@ async function aiAssist() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: data, model })
   })
+  console.log('🥇🥇🥇', res)
   const result = await res.json()
+  // Debug: log the result to check its structure
+  console.log('AI Assist result:', result)
   // result.styles: [{name, image}]
   const optionsDiv = document.getElementById('ai-options')
   optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
+  console.log('Styles:', result)
   result.styles.forEach((style, idx) => {
     const img = document.createElement('img')
     img.src = style.image
