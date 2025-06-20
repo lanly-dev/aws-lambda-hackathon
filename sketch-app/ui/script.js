@@ -4,9 +4,38 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 let drawing = false
-canvas.onmousedown = e => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY) }
-canvas.onmousemove = e => { if (drawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke() } }
+
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  let x, y;
+  if (e.touches && e.touches.length) {
+    x = e.touches[0].clientX - rect.left;
+    y = e.touches[0].clientY - rect.top;
+  } else {
+    x = e.offsetX !== undefined ? e.offsetX : e.clientX - rect.left;
+    y = e.offsetY !== undefined ? e.offsetY : e.clientY - rect.top;
+  }
+  // Scale for high-DPI or CSS scaling
+  x *= canvas.width / rect.width;
+  y *= canvas.height / rect.height;
+  return { x, y };
+}
+
+canvas.onmousedown = e => {
+  drawing = true;
+  const { x, y } = getCanvasCoords(e);
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+}
+canvas.onmousemove = e => {
+  if (drawing) {
+    const { x, y } = getCanvasCoords(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+}
 canvas.onmouseup = () => drawing = false
+canvas.onmouseleave = () => drawing = false
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height) }
 async function saveSketch() {
   const data = canvas.toDataURL()

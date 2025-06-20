@@ -4,26 +4,175 @@
   <meta charset="UTF-8">
   <title>Sketch App with AI Assist</title>
   <style>
-    body{font-family:sans-serif;background:#f0f0f0;margin:0;padding:0;}
-    #main{max-width:900px;margin:40px auto;background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 8px #0001;}
-    canvas{border:1px solid #ccc;border-radius:4px;display:block;margin:0 auto 16px;}
-    button{margin:0 8px 8px 0;}
-    #ai-options img{margin:4px;cursor:pointer;border:2px solid transparent;border-radius:4px;}
-    #ai-options img.selected{border-color:#0078d7;}
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(120deg, #e0e7ff 0%, #f0f0f0 100%);
+      width: 100vw;
+      height: 100vh;
+      min-width: 1080px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    #main {
+      width: 100vw;
+      height: 100vh;
+      min-width: 1080px;
+      min-height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+      margin: 0;
+      background: #fff;
+      padding: 32px 32px 24px 32px;
+      border-radius: 0;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+      color: #2d3a5a;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    canvas {
+      border: 2px solid #bfcfff;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto 16px;
+      background: #f8faff;
+      box-shadow: 0 2px 8px #bfcfff33;
+      transition: box-shadow 0.2s;
+      width: 1000px;
+      height: 500px;
+      max-width: 1000px;
+      max-height: 500px;
+      min-width: 800px;
+      min-height: 400px;
+    }
+    canvas:active {
+      box-shadow: 0 0 0 2px #7faaff;
+    }
+    button, select {
+      margin: 0 8px 12px 0;
+      padding: 8px 18px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #e6edff;
+      color: #2d3a5a;
+      cursor: pointer;
+      box-shadow: 0 1px 3px #0001;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:hover, select:hover {
+      background: #c7d7ff;
+      color: #1a2540;
+    }
+    #ai-options {
+      margin: 18px 0 10px 0;
+      text-align: center;
+    }
+    #ai-options img {
+      margin: 6px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px #0001;
+      transition: border 0.2s, box-shadow 0.2s;
+      width: 100px;
+      height: auto;
+      max-width: 120px;
+      max-height: 90px;
+    }
+    #ai-options img.selected {
+      border-color: #0078d7;
+      box-shadow: 0 0 0 3px #b3d1ff;
+    }
+    #status {
+      min-height: 24px;
+      color: #0078d7;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    h2 {
+      color: #2d3a5a;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      border-bottom: 1.5px solid #e6edff;
+      padding-bottom: 4px;
+    }
+    #sketches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: center;
+      max-width: 1000px;
+      overflow-x: auto;
+    }
+    #sketches img {
+      border-radius: 6px;
+      border: 1.5px solid #e6edff;
+      box-shadow: 0 1px 4px #0001;
+      background: #f8faff;
+      transition: box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
+      max-width: 120px;
+      width: 100%;
+      height: auto;
+    }
+    #sketches img:hover {
+      border-color: #7faaff;
+      box-shadow: 0 2px 8px #bfcfff33;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      margin-top: 2px;
+    }
+    .toolbar button, .toolbar select {
+      margin: 0;
+    }
+    @media (max-width: 900px) {
+      #main {
+        max-width: 98vw;
+        padding: 10px 2vw;
+      }
+      canvas {
+        max-width: 98vw;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="main">
     <h1>Sketch App with AI Assist</h1>
-    <canvas id="canvas" width="800" height="400"></canvas><br>
-    <button onclick="clearCanvas()">Clear</button>
-    <button onclick="saveSketch()">Save Sketch</button>
-    <select id="model-select">
-      <option value="stability.stable-diffusion-xl-v0">Stable Diffusion XL</option>
-      <option value="stability.stable-diffusion-v1">Stable Diffusion v1</option>
-      <option value="amazon.titan-image-generator-v1">Titan Image Generator</option>
-    </select>
-    <button onclick="aiAssist()">AI Assist</button>
+    <canvas id="canvas" width="1000" height="500" style="touch-action:none;"></canvas><br>
+    <div class="toolbar">
+      <button onclick="clearCanvas()">Clear</button>
+      <button onclick="saveSketch()">Save Sketch</button>
+      <select id="model-select">
+        <option value="stability.stable-diffusion-xl-v0">Stable Diffusion XL</option>
+        <option value="stability.stable-diffusion-v1">Stable Diffusion v1</option>
+        <option value="amazon.titan-image-generator-v1">Titan Image Generator</option>
+      </select>
+      <button onclick="aiAssist()">AI Assist</button>
+    </div>
     <div id="status"></div>
     <div id="ai-options"></div>
     <h2>Saved Sketches</h2>
