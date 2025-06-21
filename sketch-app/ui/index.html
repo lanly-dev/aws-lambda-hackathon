@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Sketch App with AI Assist</title>
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
     }
+
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(120deg, #e0e7ff 0%, #f0f0f0 100%);
@@ -19,6 +22,7 @@
       min-height: 100vh;
       box-sizing: border-box;
     }
+
     #main {
       width: 100vw;
       height: 100vh;
@@ -37,12 +41,14 @@
       justify-content: flex-start;
       box-sizing: border-box;
     }
+
     h1 {
       text-align: center;
       color: #2d3a5a;
       margin-bottom: 12px;
       letter-spacing: 1px;
     }
+
     canvas {
       border: 2px solid #bfcfff;
       border-radius: 8px;
@@ -58,10 +64,13 @@
       min-width: 800px;
       min-height: 400px;
     }
+
     canvas:active {
       box-shadow: 0 0 0 2px #7faaff;
     }
-    button, select {
+
+    button,
+    select {
       margin: 0 8px 12px 0;
       padding: 8px 18px;
       font-size: 1rem;
@@ -73,14 +82,26 @@
       box-shadow: 0 1px 3px #0001;
       transition: background 0.2s, color 0.2s;
     }
-    button:hover, select:hover {
+
+    button:hover,
+    select:hover {
       background: #c7d7ff;
       color: #1a2540;
     }
+
+    button[disabled] {
+      background: #e0e0e0 !important;
+      color: #a0a0a0 !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+      box-shadow: none;
+    }
+
     #ai-options {
       margin: 18px 0 10px 0;
       text-align: center;
     }
+
     #ai-options img {
       margin: 6px;
       cursor: pointer;
@@ -93,10 +114,12 @@
       max-width: 120px;
       max-height: 90px;
     }
+
     #ai-options img.selected {
       border-color: #0078d7;
       box-shadow: 0 0 0 3px #b3d1ff;
     }
+
     #status {
       min-height: 24px;
       color: #0078d7;
@@ -104,6 +127,7 @@
       margin-bottom: 8px;
       text-align: center;
     }
+
     h2 {
       color: #2d3a5a;
       margin-top: 24px;
@@ -112,6 +136,7 @@
       border-bottom: 1.5px solid #e6edff;
       padding-bottom: 4px;
     }
+
     #sketches {
       display: flex;
       flex-wrap: wrap;
@@ -121,6 +146,7 @@
       max-width: 1000px;
       overflow-x: auto;
     }
+
     #sketches img {
       border-radius: 6px;
       border: 1.5px solid #e6edff;
@@ -132,10 +158,12 @@
       width: 100%;
       height: auto;
     }
+
     #sketches img:hover {
       border-color: #7faaff;
       box-shadow: 0 2px 8px #bfcfff33;
     }
+
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -145,20 +173,25 @@
       margin-bottom: 10px;
       margin-top: 2px;
     }
-    .toolbar button, .toolbar select {
+
+    .toolbar button,
+    .toolbar select {
       margin: 0;
     }
+
     @media (max-width: 900px) {
       #main {
         max-width: 98vw;
         padding: 10px 2vw;
       }
+
       canvas {
         max-width: 98vw;
       }
     }
   </style>
 </head>
+
 <body>
   <div id="main">
     <h1>Sketch App with AI Assist</h1>
@@ -173,9 +206,9 @@
       </select>
       <select id="style-count-select">
         <option value="1">1 Style</option>
-        <option value="2">2 Styles</option>
+        <option value="2" selected>2 Styles</option>
         <option value="3">3 Styles</option>
-        <option value="4" selected>4 Styles</option>
+        <option value="4">4 Styles</option>
       </select>
       <button onclick="aiAssist()">AI Assist</button>
     </div>
@@ -186,4 +219,5 @@
   </div>
   <script src="ui/script.js"></script>
 </body>
+
 </html>

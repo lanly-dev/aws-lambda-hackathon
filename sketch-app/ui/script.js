@@ -55,9 +55,51 @@ async function loadSketches() {
     div.appendChild(img)
   })
 }
+let aiAssistCooldown = false
+let aiAssistTimer = null
+const AI_ASSIST_COOLDOWN_MS = 30000 // 30 seconds
+
+function showSpinnerWithCountdown(seconds) {
+  const status = document.getElementById('status')
+  let remaining = seconds
+  status.innerHTML = `<span class="spinner"></span> AI working... (${remaining}s)`
+  if (aiAssistTimer) clearInterval(aiAssistTimer)
+  aiAssistTimer = setInterval(() => {
+    remaining--
+    if (remaining > 0) {
+      status.innerHTML = `<span class="spinner"></span> Please wait... (${remaining}s)`
+    } else {
+      clearInterval(aiAssistTimer)
+      aiAssistTimer = null
+      status.textContent = ''
+    }
+  }, 1000)
+}
+
+// Add spinner CSS
+if (!document.getElementById('ai-spinner-style')) {
+  const style = document.createElement('style')
+  style.id = 'ai-spinner-style'
+  style.textContent = `.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }`
+  document.head.appendChild(style)
+}
+
 async function aiAssist() {
+  if (aiAssistCooldown) {
+    document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
+    return
+  }
+  aiAssistCooldown = true
+  document.querySelector('button[onclick="aiAssist()"]')?.setAttribute('disabled', 'disabled')
+  showSpinnerWithCountdown(AI_ASSIST_COOLDOWN_MS / 1000)
+  setTimeout(() => {
+    aiAssistCooldown = false
+    document.querySelector('button[onclick="aiAssist()"]')?.removeAttribute('disabled')
+    if (aiAssistTimer) { clearInterval(aiAssistTimer); aiAssistTimer = null }
+    document.getElementById('status').textContent = ''
+  }, AI_ASSIST_COOLDOWN_MS)
+
   const data = canvas.toDataURL()
-  document.getElementById('status').textContent = 'AI working...'
   document.getElementById('ai-options').innerHTML = ''
   const model = document.getElementById('model-select').value
   const styleCount = parseInt(document.getElementById('style-count-select').value, 10) || 4
