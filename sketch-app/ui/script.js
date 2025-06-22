@@ -33,8 +33,16 @@ canvas.onmousemove = e => {
 }
 canvas.onmouseup = () => drawing = false
 canvas.onmouseleave = () => drawing = false
+function fillCanvasWhiteBg() {
+  ctx.save()
+  ctx.globalCompositeOperation = 'destination-over'
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.restore()
+}
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height) }
 async function saveSketch() {
+  fillCanvasWhiteBg()
   const data = canvas.toDataURL()
   const res = await fetch('/sketches', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageData: data, title: 'Untitled', timestamp: new Date().toISOString() }) })
   document.getElementById('status').textContent = (await res.json()).message || 'Saved!'
@@ -99,6 +107,7 @@ async function aiAssist() {
     document.getElementById('status').textContent = ''
   }, AI_ASSIST_COOLDOWN_MS)
 
+  fillCanvasWhiteBg()
   const data = canvas.toDataURL()
   document.getElementById('ai-options').innerHTML = ''
   const model = document.getElementById('model-select').value

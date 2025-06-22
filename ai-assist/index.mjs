@@ -20,19 +20,22 @@ async function callBedrockStyle(base64Png, prompt, modelId) {
   const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-west-2' })
   if (modelId.startsWith('amazon.titan-image-generator')) {
     const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
+    // Debug: Log base64 length and preview URL
+    console.log('[DEBUG] Received base64 length:', base64.length)
+    console.log('[DEBUG] Preview sketch URL:', 'data:image/png;base64', base64)
     const payload = {
       taskType: 'TEXT_IMAGE',
       textToImageParams: {
         conditionImage: base64,
         controlMode: 'SEGMENTATION',
-        text: 'complete the image with creative style'
-        // negativeText: string
+        text: 'a completed artwork',
+        controlStrength : 0.8
       },
       imageGenerationConfig: {
         width: 512,
         height: 512,
         quality: 'standard',
-        cfgScale: 7.0,
+        cfgScale: 8.0,
         numberOfImages: 1
       }
     }
