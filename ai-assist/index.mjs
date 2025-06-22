@@ -17,29 +17,51 @@ function getMockStyles() {
 }
 
 async function callBedrockStyle(base64Png, prompt, modelId) {
-
-  const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' })
-  let input = {}
-  // Titan model expects 'inputImage', others may expect 'image' and 'prompt'
+  const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-west-2' })
   if (modelId.startsWith('amazon.titan-image-generator')) {
-    input = {
-      modelId,
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify({ inputImage: base64Png, taskType: 'INPAINT', parameters: { prompt } })
+    const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
+    const payload = {
+      taskType: 'TEXT_IMAGE',
+      textToImageParams: {
+        conditionImage: base64,
+        controlMode: 'SEGMENTATION',
+        text: 'complete the image with creative style'
+        // negativeText: string
+      },
+      imageGenerationConfig: {
+        width: 512,
+        height: 512,
+        quality: 'standard',
+        cfgScale: 7.0,
+        numberOfImages: 1
+      }
     }
+
+    const request = {
+      modelId,
+      body: JSON.stringify(payload)
+    }
+
+    try {
+      const response = await client.send(new InvokeModelCommand(request))
+
+      const decodedResponseBody = new TextDecoder().decode(response.body)
+      // The response includes an array of base64-encoded PNG images
+      /** @type {{images: string[]}} */
+      const responseBody = JSON.parse(decodedResponseBody)
+      return responseBody.images[0] // Base64-encoded image data
+    } catch (error) {
+      console.error(`ERROR: Can't invoke '${modelId}'. Reason: ${error.message}`)
+      throw error
+    }
+  } else if (modelId.startsWith('stability.')) {
+    alert('Stability.ai is not yet supported in this demo.')
   } else {
-    input = {
-      modelId,
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify({ prompt, image: base64Png })
-    }
+    throw new Error('Unsupported model: ' + modelId)
   }
   const command = new InvokeModelCommand(input)
   const response = await client.send(command)
   const result = JSON.parse(new TextDecoder().decode(response.body))
-  // Adjust this according to your model's output format
   return result.image || result.images?.[0] || base64Png
 }
 
