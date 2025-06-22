@@ -200,15 +200,15 @@
       <button onclick="clearCanvas()">Clear</button>
       <button onclick="saveSketch()">Save Sketch</button>
       <select id="model-select">
-        <option value="stability.stable-diffusion-xl-v0">Stable Diffusion XL</option>
-        <option value="stability.stable-diffusion-v1">Stable Diffusion v1</option>
-        <option value="amazon.titan-image-generator-v1">Titan Image Generator</option>
+        <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
+        <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1 (Login required)</option>
+        <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)</option>
       </select>
       <select id="style-count-select">
         <option value="1">1 Style</option>
         <option value="2" selected>2 Styles</option>
-        <option value="3">3 Styles</option>
-        <option value="4">4 Styles</option>
+        <option value="3" disabled>3 Styles (Login required)</option>
+        <option value="4" disabled>4 Styles (Login required)</option>
       </select>
       <button onclick="aiAssist()">AI Assist</button>
     </div>

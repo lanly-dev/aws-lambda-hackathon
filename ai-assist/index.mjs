@@ -17,21 +17,30 @@ function getMockStyles() {
 }
 
 async function callBedrockStyle(base64Png, prompt, modelId) {
+
   const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' })
-  const input = {
-    modelId,
-    contentType: 'application/json',
-    accept: 'application/json',
-    body: JSON.stringify({
-      prompt,
-      image: base64Png
-    })
+  let input = {}
+  // Titan model expects 'inputImage', others may expect 'image' and 'prompt'
+  if (modelId.startsWith('amazon.titan-image-generator')) {
+    input = {
+      modelId,
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({ inputImage: base64Png, taskType: 'INPAINT', parameters: { prompt } })
+    }
+  } else {
+    input = {
+      modelId,
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({ prompt, image: base64Png })
+    }
   }
   const command = new InvokeModelCommand(input)
   const response = await client.send(command)
   const result = JSON.parse(new TextDecoder().decode(response.body))
   // Adjust this according to your model's output format
-  return result.image || base64Png
+  return result.image || result.images?.[0] || base64Png
 }
 
 export const handler = async (event) => {
