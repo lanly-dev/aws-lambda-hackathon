@@ -80,7 +80,7 @@ function showSpinnerWithCountdown(seconds) {
 if (!document.getElementById('ai-spinner-style')) {
   const style = document.createElement('style')
   style.id = 'ai-spinner-style'
-  style.textContent = `.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }`
+  style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
   document.head.appendChild(style)
 }
 
@@ -111,10 +111,9 @@ async function aiAssist() {
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')
   optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
-  console.log('Styles:', result)
-  result.styles.forEach((style, idx) => {
+  result.styles.forEach((style) => {
     const img = document.createElement('img')
-    img.src = style.image
+    img.src = `data:image/png;base64,${style.image}`
     img.width = 160
     img.title = style.name
     img.onclick = () => {
@@ -122,7 +121,7 @@ async function aiAssist() {
       img.classList.add('selected')
       const i = new Image()
       i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
-      i.src = style.image
+      i.src  = `data:image/png;base64,${style.image}`
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
     optionsDiv.appendChild(img)
@@ -130,3 +129,7 @@ async function aiAssist() {
   document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
 }
 loadSketches()
+
+window.clearCanvas = clearCanvas
+window.saveSketch = saveSketch
+window.aiAssist = aiAssist

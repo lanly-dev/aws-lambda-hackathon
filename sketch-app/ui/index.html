@@ -57,12 +57,12 @@
       background: #f8faff;
       box-shadow: 0 2px 8px #bfcfff33;
       transition: box-shadow 0.2s;
-      width: 1000px;
-      height: 500px;
-      max-width: 1000px;
-      max-height: 500px;
-      min-width: 800px;
-      min-height: 400px;
+      width: 512px;
+      height: 512px;
+      max-width: 512px;
+      max-height: 512px;
+      min-width: 512px;
+      min-height: 512px;
     }
 
     canvas:active {
@@ -187,6 +187,10 @@
 
       canvas {
         max-width: 98vw;
+        width: 512px;
+        height: 512px;
+        min-width: 512px;
+        min-height: 512px;
       }
     }
   </style>
@@ -195,7 +199,7 @@
 <body>
   <div id="main">
     <h1>Sketch App with AI Assist</h1>
-    <canvas id="canvas" width="1000" height="500" style="touch-action:none;"></canvas><br>
+    <canvas id="canvas" width="512" height="512" style="touch-action:none;"></canvas><br>
     <div class="toolbar">
       <button onclick="clearCanvas()">Clear</button>
       <button onclick="saveSketch()">Save Sketch</button>
