@@ -142,42 +142,79 @@ if (!document.getElementById('ai-spinner-style')) {
   document.head.appendChild(style)
 }
 
-// Timeline logic
+// Timeline state
+const timelineState = []
+
 function addToTimeline(imageDataUrl, label = '') {
   const timeline = document.getElementById('timeline')
-  const wrapper = document.createElement('div')
-  wrapper.style.display = 'flex'
-  wrapper.style.flexDirection = 'column'
-  wrapper.style.alignItems = 'center'
-  wrapper.style.minWidth = '80px'
-
-  const img = document.createElement('img')
-  img.src = imageDataUrl
-  img.style.width = '70px'
-  img.style.height = '70px'
-  img.style.objectFit = 'contain'
-  img.style.border = '2px solid #e6edff'
-  img.style.borderRadius = '6px'
-  img.style.background = '#fff'
-  img.style.boxShadow = '0 1px 4px #0001'
-  img.style.marginBottom = '4px'
-
-  if (label) {
-    const lbl = document.createElement('div')
-    lbl.textContent = label
-    lbl.style.fontSize = '0.8rem'
-    lbl.style.color = '#2d3a5a'
-    lbl.style.textAlign = 'center'
-    wrapper.appendChild(img)
-    wrapper.appendChild(lbl)
-  } else {
-    wrapper.appendChild(img)
+  // Prevent duplicate 'Saved' entries
+  if (label === 'Saved') {
+    const idx = timelineState.findIndex(item => item.image === imageDataUrl && item.label === 'Saved')
+    if (idx !== -1) {
+      document.getElementById('status').textContent = 'This sketch is already saved.'
+      // Move to most recent
+      const [item] = timelineState.splice(idx, 1)
+      timelineState.push(item)
+      renderTimeline()
+      return
+    }
   }
+  // Add or move item
+  timelineState.push({ image: imageDataUrl, label })
+  // Limit to 10
+  if (timelineState.length > 10) timelineState.shift()
+  renderTimeline()
+}
 
-  timeline.appendChild(wrapper)
+function renderTimeline() {
+  const timeline = document.getElementById('timeline')
+  timeline.innerHTML = ''
+  timelineState.forEach(({ image, label }, idx) => {
+    const wrapper = document.createElement('div')
+    wrapper.style.display = 'flex'
+    wrapper.style.flexDirection = 'column'
+    wrapper.style.alignItems = 'center'
+    wrapper.style.minWidth = '80px'
+    const img = document.createElement('img')
+    img.src = image
+    img.style.width = '70px'
+    img.style.height = '70px'
+    img.style.objectFit = 'contain'
+    img.style.border = '2px solid #e6edff'
+    img.style.borderRadius = '6px'
+    img.style.background = '#fff'
+    img.style.boxShadow = '0 1px 4px #0001'
+    img.style.marginBottom = '4px'
+    img.style.cursor = 'pointer'
+    img.title = label ? label : 'Timeline image'
+    img.onclick = () => {
+      const i = new Image()
+      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
+      i.src = image
+    }
+    wrapper.appendChild(img)
+    if (label) {
+      const lbl = document.createElement('div')
+      lbl.textContent = label
+      lbl.style.fontSize = '0.8rem'
+      lbl.style.color = '#2d3a5a'
+      lbl.style.textAlign = 'center'
+      wrapper.appendChild(lbl)
+    }
+    timeline.appendChild(wrapper)
+  })
+  // Scroll to end if overflow
+  timeline.scrollLeft = timeline.scrollWidth
+}
+
+function saveToTimeline() {
+  fillCanvasWhiteBg()
+  const data = canvas.toDataURL('image/png')
+  addToTimeline(data, 'Saved')
 }
 
 window.clearCanvas = clearCanvas
 window.downloadCanvas = downloadCanvas
 window.aiAssist = aiAssist
 window.addToTimeline = addToTimeline
+window.saveToTimeline = saveToTimeline
