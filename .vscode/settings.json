@@ -4,5 +4,7 @@
     "efix",
     "samconfig",
     "uuidv"
-  ]
+  ],
+  // Sort the Explorer tree view by type (folders first, then files)
+  "explorer.sortOrder": "type"
 }
