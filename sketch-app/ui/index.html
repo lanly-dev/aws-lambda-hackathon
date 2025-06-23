@@ -179,6 +179,20 @@
       margin: 0;
     }
 
+    #timeline {
+      width: 100%;
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 12px;
+      overflow-x: auto;
+      min-height: 110px;
+      border-bottom: 1.5px solid #e6edff;
+      padding-bottom: 8px;
+    }
+
     @media (max-width: 900px) {
       #main {
         max-width: 98vw;
@@ -202,7 +216,7 @@
     <canvas id="canvas" width="512" height="512" style="touch-action:none;"></canvas><br>
     <div class="toolbar">
       <button onclick="clearCanvas()">Clear</button>
-      <button onclick="saveSketch()">Save Sketch</button>
+      <button onclick="downloadCanvas()">Download</button>
       <select id="model-select">
         <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
         <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1 (Login required)</option>
@@ -218,6 +232,7 @@
     </div>
     <div id="status"></div>
     <div id="ai-options"></div>
+    <div id="timeline"></div>
     <h2>Saved Sketches</h2>
     <div id="sketches"></div>
   </div>

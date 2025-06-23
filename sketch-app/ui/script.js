@@ -40,29 +40,10 @@ function fillCanvasWhiteBg() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.restore()
 }
-function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height) }
-async function saveSketch() {
-  fillCanvasWhiteBg()
-  const data = canvas.toDataURL()
-  const res = await fetch('/sketches', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageData: data, title: 'Untitled', timestamp: new Date().toISOString() }) })
-  document.getElementById('status').textContent = (await res.json()).message || 'Saved!'
-  loadSketches()
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
-async function loadSketches() {
-  const res = await fetch('/sketches')
-  const sketches = await res.json()
-  const div = document.getElementById('sketches')
-  div.innerHTML = ''
-  sketches.forEach(sk => {
-    const img = document.createElement('img')
-    img.src = sk.imageData
-    img.width = 120
-    img.title = sk.title
-    img.style.margin = '4px'
-    img.onclick = () => { const i = new Image(); i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }; i.src = sk.imageData }
-    div.appendChild(img)
-  })
-}
+
 let aiAssistCooldown = false
 let aiAssistTimer = null
 const AI_ASSIST_COOLDOWN_MS = 30000 // 30 seconds
@@ -92,7 +73,20 @@ if (!document.getElementById('ai-spinner-style')) {
   document.head.appendChild(style)
 }
 
+function downloadCanvas() {
+  fillCanvasWhiteBg()
+  const data = canvas.toDataURL('image/png')
+  const a = document.createElement('a')
+  a.href = data
+  a.download = 'sketch.png'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}
+
 async function aiAssist() {
+  fillCanvasWhiteBg()
+  addToTimeline(canvas.toDataURL('image/png'), 'Sketch')
   if (aiAssistCooldown) {
     document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
     return
@@ -129,16 +123,61 @@ async function aiAssist() {
       Array.from(optionsDiv.querySelectorAll('img')).forEach(im => im.classList.remove('selected'))
       img.classList.add('selected')
       const i = new Image()
-      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
+      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); addToTimeline(i.src, 'Applied') }
       i.src  = `data:image/png;base64,${style.image}`
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
     optionsDiv.appendChild(img)
+    // Add AI result to timeline
+    addToTimeline(`data:image/png;base64,${style.image}`, 'AI')
   })
   document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
 }
-loadSketches()
+
+// Add spinner CSS
+if (!document.getElementById('ai-spinner-style')) {
+  const style = document.createElement('style')
+  style.id = 'ai-spinner-style'
+  style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
+  document.head.appendChild(style)
+}
+
+// Timeline logic
+function addToTimeline(imageDataUrl, label = '') {
+  const timeline = document.getElementById('timeline')
+  const wrapper = document.createElement('div')
+  wrapper.style.display = 'flex'
+  wrapper.style.flexDirection = 'column'
+  wrapper.style.alignItems = 'center'
+  wrapper.style.minWidth = '80px'
+
+  const img = document.createElement('img')
+  img.src = imageDataUrl
+  img.style.width = '70px'
+  img.style.height = '70px'
+  img.style.objectFit = 'contain'
+  img.style.border = '2px solid #e6edff'
+  img.style.borderRadius = '6px'
+  img.style.background = '#fff'
+  img.style.boxShadow = '0 1px 4px #0001'
+  img.style.marginBottom = '4px'
+
+  if (label) {
+    const lbl = document.createElement('div')
+    lbl.textContent = label
+    lbl.style.fontSize = '0.8rem'
+    lbl.style.color = '#2d3a5a'
+    lbl.style.textAlign = 'center'
+    wrapper.appendChild(img)
+    wrapper.appendChild(lbl)
+  } else {
+    wrapper.appendChild(img)
+  }
+
+  timeline.appendChild(wrapper)
+}
 
 window.clearCanvas = clearCanvas
-window.saveSketch = saveSketch
+window.downloadCanvas = downloadCanvas
 window.aiAssist = aiAssist
+window.addToTimeline = addToTimeline
