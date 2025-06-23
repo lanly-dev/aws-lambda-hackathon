@@ -18,7 +18,13 @@ function getCanvasCoords(e) {
   return { x, y }
 }
 
+function clearStatus() {
+  document.getElementById('status').textContent = ''
+}
+
+// Update canvas events to clear status
 canvas.onmousedown = e => {
+  clearStatus()
   drawing = true
   const { x, y } = getCanvasCoords(e)
   ctx.beginPath()
@@ -26,13 +32,14 @@ canvas.onmousedown = e => {
 }
 canvas.onmousemove = e => {
   if (drawing) {
+    clearStatus()
     const { x, y } = getCanvasCoords(e)
     ctx.lineTo(x, y)
     ctx.stroke()
   }
 }
-canvas.onmouseup = () => drawing = false
-canvas.onmouseleave = () => drawing = false
+canvas.onmouseup = () => { clearStatus(); drawing = false }
+canvas.onmouseleave = () => { clearStatus(); drawing = false }
 function fillCanvasWhiteBg() {
   ctx.save()
   ctx.globalCompositeOperation = 'destination-over'
@@ -74,6 +81,7 @@ if (!document.getElementById('ai-spinner-style')) {
 }
 
 function downloadCanvas() {
+  clearStatus()
   fillCanvasWhiteBg()
   const data = canvas.toDataURL('image/png')
   const a = document.createElement('a')
@@ -85,8 +93,8 @@ function downloadCanvas() {
 }
 
 async function aiAssist() {
+  clearStatus()
   fillCanvasWhiteBg()
-  addToTimeline(canvas.toDataURL('image/png'), 'Sketch')
   if (aiAssistCooldown) {
     document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
     return
@@ -128,8 +136,6 @@ async function aiAssist() {
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
     optionsDiv.appendChild(img)
-    // Add AI result to timeline
-    addToTimeline(`data:image/png;base64,${style.image}`, 'AI')
   })
   document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
 }
@@ -146,7 +152,6 @@ if (!document.getElementById('ai-spinner-style')) {
 const timelineState = []
 
 function addToTimeline(imageDataUrl, label = '') {
-  const timeline = document.getElementById('timeline')
   // Prevent duplicate 'Saved' entries
   if (label === 'Saved') {
     const idx = timelineState.findIndex(item => item.image === imageDataUrl && item.label === 'Saved')
@@ -188,6 +193,14 @@ function renderTimeline() {
     img.style.cursor = 'pointer'
     img.title = label ? label : 'Timeline image'
     img.onclick = () => {
+      clearStatus()
+      // Move this item to the end (most recent)
+      const foundIdx = timelineState.findIndex(item => item.image === image && item.label === label)
+      if (foundIdx !== -1 && foundIdx !== timelineState.length - 1) {
+        const [item] = timelineState.splice(foundIdx, 1)
+        timelineState.push(item)
+        renderTimeline()
+      }
       const i = new Image()
       i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
       i.src = image
@@ -208,12 +221,13 @@ function renderTimeline() {
 }
 
 function saveToTimeline() {
+  clearStatus()
   fillCanvasWhiteBg()
   const data = canvas.toDataURL('image/png')
   addToTimeline(data, 'Saved')
 }
 
-window.clearCanvas = clearCanvas
+window.clearCanvas = function() { clearStatus(); clearCanvas() }
 window.downloadCanvas = downloadCanvas
 window.aiAssist = aiAssist
 window.addToTimeline = addToTimeline
