@@ -213,6 +213,19 @@
 <body>
   <div id="main">
     <h1>Sketch App with AI Assist</h1>
+      <!-- Login/User Info Section -->
+    <div id="user-section" style="margin-bottom: 16px; text-align: center;">      <div id="login-section">
+        <button id="github-login-btn" onclick="loginWithGitHub()" style="background: #24292e; color: white; padding: 10px 20px; font-size: 1rem;">
+          🔗 Login with GitHub
+        </button>
+        <p style="font-size: 0.9rem; color: #666; margin: 8px 0;">Login to unlock more AI styles and unlimited usage!</p>
+      </div>
+      <div id="user-info" style="display: none;">
+        <span>Welcome, <strong id="username"></strong>!</span>
+        <button onclick="logout()" style="background: #dc3545; color: white; margin-left: 12px;">Logout</button>
+      </div>
+    </div>
+
     <canvas id="canvas" width="512" height="512" style="touch-action:none;"></canvas><br>
     <div class="toolbar">
       <button onclick="clearCanvas()">Clear</button>

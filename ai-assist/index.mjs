@@ -1,4 +1,9 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
+import AWS from 'aws-sdk'
+
+const dynamo = new AWS.DynamoDB.DocumentClient()
+const DEMO_LIMIT = 3
+const DEMO_TTL_HOURS = 24
 
 // Helper: Return 4 mock images for dev/testing
 function getMockStyles() {
@@ -68,14 +73,76 @@ async function callBedrockStyle(base64Png, prompt, modelId) {
   return result.image || result.images?.[0] || base64Png
 }
 
+async function getDemoUsage(ip) {
+  if (!process.env.DEMO_USAGE_TABLE) return 0
+  try {
+    const res = await dynamo.get({
+      TableName: process.env.DEMO_USAGE_TABLE,
+      Key: { ip }
+    }).promise()
+    return res.Item ? res.Item.count : 0
+  } catch (error) {
+    console.error('Error getting demo usage:', error)
+    return 0
+  }
+}
+
+async function incrementDemoUsage(ip) {
+  if (!process.env.DEMO_USAGE_TABLE) return
+  try {
+    const ttl = Math.floor(Date.now() / 1000) + DEMO_TTL_HOURS * 3600
+    await dynamo.update({
+      TableName: process.env.DEMO_USAGE_TABLE,
+      Key: { ip },
+      UpdateExpression: 'ADD #c :inc SET #t = :ttl',
+      ExpressionAttributeNames: { '#c': 'count', '#t': 'ttl' },
+      ExpressionAttributeValues: { ':inc': 1, ':ttl': ttl }
+    }).promise()
+  } catch (error) {
+    console.error('Error incrementing demo usage:', error)
+  }
+}
+
 export const handler = async (event) => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
   try {
     const { image, model, styleCount } = JSON.parse(event.body)
     const count = Math.max(1, Math.min(Number(styleCount) || 4, 4))
+
+    // Check for GitHub token in Authorization header
+    const authHeader = event.headers?.Authorization || event.headers?.authorization
+    const githubToken = authHeader?.replace('Bearer ', '')
+
+    // If no token, user is anonymous - apply demo limits
+    if (!githubToken) {
+      const ip = event.headers['X-Forwarded-For']?.split(',')[0] || 'unknown'
+      const demoUsage = await getDemoUsage(ip)
+      console.log('Demo usage for IP', ip, ':', demoUsage)
+      if (demoUsage >= DEMO_LIMIT) {
+        return { statusCode: 429, headers: cors, body: JSON.stringify({ error: 'Demo usage limit exceeded' }) }
+      }
+      // Increment demo usage count for the IP
+      await incrementDemoUsage(ip)
+    } else {
+      // Verify GitHub token and get user info
+      try {
+        const response = await fetch('https://api.github.com/user', {
+          headers: { Authorization: `token ${githubToken}` }
+        })
+        if (!response.ok) {
+          return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Invalid GitHub token' }) }
+        }
+        const githubUser = await response.json()
+        console.log('Authenticated user:', githubUser.login)
+        // Authenticated users get unlimited access (or higher limits)
+      } catch (error) {
+        return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Token verification failed' }) }
+      }
+    }
+
     // Use mock or real AI based on AI_MODE env var
     if (process.env.AI_MODE === 'dev') {
       const allStyles = getMockStyles()

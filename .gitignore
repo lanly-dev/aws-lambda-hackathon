@@ -1,6 +1,7 @@
 node_modules
 package-lock.json
 .aws-sam
-.env
+# Environment variables
+env.json
 # Ignore AWS SAM build artifacts
 samconfig.toml

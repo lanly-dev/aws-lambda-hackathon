@@ -63,6 +63,35 @@ Resources:
         - AttributeName: sketchId
           KeyType: HASH
 
+  GitHubOAuth:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./github-oauth/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Environment:
+        Variables:
+          GITHUB_CLIENT_ID: !Ref GitHubClientId
+          GITHUB_CLIENT_SECRET: !Ref GitHubClientSecret
+      Events:
+        GitHubOAuthApi:
+          Type: Api
+          Properties:
+            Path: /auth/github
+            Method: POST
+
+Parameters:
+  GitHubClientId:
+    Type: String
+    Description: GitHub OAuth App Client ID
+    Default: "Ov23liNUvc7QG2vvoSfM"
+  GitHubClientSecret:
+    Type: String
+    Description: GitHub OAuth App Client Secret
+    NoEcho: true
+
 Outputs:
   SketchApi:
     Description: "API Gateway endpoint URL for Sketch App"
