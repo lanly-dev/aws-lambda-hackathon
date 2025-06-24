@@ -10,6 +10,7 @@ const AUTH_TTL_HOURS = 5 / 60 // 5 minutes in hours
 
 // Helper: Return 4 mock images for dev/testing
 function getMockStyles() {
+  console.warn('⚠️⚠️ Using mock styles for development/testing. Set AI_MODE=prod to use real AI generation.')
   const mockImages = [
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+1n1cAAAAASUVORK5CYII=', // red
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8AAAgMBAJcF+ZcAAAAASUVORK5CYII=', // green
@@ -177,7 +178,7 @@ export const handler = async (event) => {
         }
         await incrementAuthUsage(githubUser.id)
       } catch (error) {
-        return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Token verification failed' }) }
+        return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Token verification failed: ' + error.message || 'Unknown error' }) }
       }
     }
 

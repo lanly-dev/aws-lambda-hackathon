@@ -27,9 +27,7 @@ async function exchangeCodeForToken(code) {
       body: JSON.stringify({ code })
     })
 
-    if (!response.ok) {
-      throw new Error('Authentication failed')
-    }
+    if (!response.ok) throw new Error('Authentication failed')
 
     const data = await response.json()
 
@@ -123,20 +121,14 @@ function updateUIBasedOnAuth() {
     if (option.value.includes('stability')) {
       option.disabled = !isLoggedIn
       option.textContent = option.textContent.replace(' (Login required)', '')
-      if (!isLoggedIn) {
-        option.textContent += ' (Login required)'
-      }
+      if (!isLoggedIn) option.textContent += ' (Login required)'
     }
   })
 
   // Reset to safe defaults if logged out
   if (!isLoggedIn) {
-    if (styleCountSelect.selectedIndex > 1) {
-      styleCountSelect.selectedIndex = 1 // 2 styles max for anonymous
-    }
-    if (modelSelect.value.includes('stability')) {
-      modelSelect.selectedIndex = 0 // Default to Titan
-    }
+    if (styleCountSelect.selectedIndex > 1) styleCountSelect.selectedIndex = 1 // 2 styles max for anonymous
+    if (modelSelect.value.includes('stability')) modelSelect.selectedIndex = 0 // Default to Titan
   }
 }
 
@@ -200,9 +192,8 @@ function showSpinnerWithCountdown(seconds) {
   if (aiAssistTimer) clearInterval(aiAssistTimer)
   aiAssistTimer = setInterval(() => {
     remaining--
-    if (remaining > 0) {
-      status.innerHTML = `<span class="spinner"></span> Please wait... (${remaining}s)`
-    } else {
+    if (remaining > 0) status.innerHTML = `<span class="spinner"></span> Please wait... (${remaining}s)`
+    else {
       clearInterval(aiAssistTimer)
       aiAssistTimer = null
       status.textContent = ''
@@ -427,9 +418,8 @@ function initializeApp() {
   }
 
   // Verify existing token if present
-  if (githubToken && currentUser) {
-    verifyGitHubToken()
-  } else {
+  if (githubToken && currentUser) verifyGitHubToken()
+  else {
     showLoginSection()
     updateUIBasedOnAuth()
   }
@@ -437,14 +427,11 @@ function initializeApp() {
 }
 
 // Ensure initialization runs after DOM is loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp)
-} else {
-  initializeApp()
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeApp)
+else initializeApp()
 
-window.saveToTimeline = saveToTimeline
-window.downloadCanvas = downloadCanvas
-window.clearCanvas = clearCanvas
-window.loginWithGitHub = loginWithGitHub
 window.aiAssist = aiAssist
+window.clearCanvas = clearCanvas
+window.downloadCanvas = downloadCanvas
+window.loginWithGitHub = loginWithGitHub
+window.saveToTimeline = saveToTimeline
