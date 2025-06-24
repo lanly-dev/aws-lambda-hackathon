@@ -381,7 +381,7 @@ function setupCanvasEvents() {
     const { x, y } = getCanvasCoords(e)
     ctx.beginPath()
     ctx.moveTo(x, y)
-  })
+  }, { passive: false })
 
   canvas.addEventListener('touchmove', e => {
     e.preventDefault()
@@ -391,13 +391,13 @@ function setupCanvasEvents() {
       ctx.lineTo(x, y)
       ctx.stroke()
     }
-  })
+  }, { passive: false })
 
   canvas.addEventListener('touchend', e => {
     e.preventDefault()
     clearStatus()
     drawing = false
-  })
+  }, { passive: false })
 }
 
 // Initialize the app when DOM is ready
