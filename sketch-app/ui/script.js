@@ -269,7 +269,7 @@ async function aiAssist() {
   optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
   result.styles.forEach((style) => {
     const img = document.createElement('img')
-    img.src = `data:image/png;base64,${style.image}`
+    img.src = style.image
     img.width = 160
     img.title = style.name
     img.onclick = () => {
@@ -277,7 +277,7 @@ async function aiAssist() {
       img.classList.add('selected')
       const i = new Image()
       i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); addToTimeline(i.src, 'Applied') }
-      i.src = `data:image/png;base64,${style.image}`
+      i.src = style.image
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
     optionsDiv.appendChild(img)

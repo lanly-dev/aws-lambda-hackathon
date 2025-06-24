@@ -1,9 +1,12 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
-import AWS from 'aws-sdk'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
-const dynamo = new AWS.DynamoDB.DocumentClient()
+const dynamo = new DynamoDBClient({})
 const DEMO_LIMIT = 3
-const DEMO_TTL_HOURS = 24
+const AUTH_LIMIT = 30
+const DEMO_TTL_HOURS = 5 / 60 // 5 minutes in hours
+const AUTH_TTL_HOURS = 5 / 60 // 5 minutes in hours
 
 // Helper: Return 4 mock images for dev/testing
 function getMockStyles() {
@@ -76,10 +79,10 @@ async function callBedrockStyle(base64Png, prompt, modelId) {
 async function getDemoUsage(ip) {
   if (!process.env.DEMO_USAGE_TABLE) return 0
   try {
-    const res = await dynamo.get({
+    const res = await dynamo.send(new GetCommand({
       TableName: process.env.DEMO_USAGE_TABLE,
       Key: { ip }
-    }).promise()
+    }))
     return res.Item ? res.Item.count : 0
   } catch (error) {
     console.error('Error getting demo usage:', error)
@@ -91,15 +94,45 @@ async function incrementDemoUsage(ip) {
   if (!process.env.DEMO_USAGE_TABLE) return
   try {
     const ttl = Math.floor(Date.now() / 1000) + DEMO_TTL_HOURS * 3600
-    await dynamo.update({
+    await dynamo.send(new UpdateCommand({
       TableName: process.env.DEMO_USAGE_TABLE,
       Key: { ip },
       UpdateExpression: 'ADD #c :inc SET #t = :ttl',
       ExpressionAttributeNames: { '#c': 'count', '#t': 'ttl' },
       ExpressionAttributeValues: { ':inc': 1, ':ttl': ttl }
-    }).promise()
+    }))
   } catch (error) {
     console.error('Error incrementing demo usage:', error)
+  }
+}
+
+async function getAuthUsage(userId) {
+  if (!process.env.DEMO_USAGE_TABLE) return 0
+  try {
+    const res = await dynamo.send(new GetCommand({
+      TableName: process.env.DEMO_USAGE_TABLE,
+      Key: { ip: `auth#${userId}` }
+    }))
+    return res.Item ? res.Item.count : 0
+  } catch (error) {
+    console.error('Error getting auth usage:', error)
+    return 0
+  }
+}
+
+async function incrementAuthUsage(userId) {
+  if (!process.env.DEMO_USAGE_TABLE) return
+  try {
+    const ttl = Math.floor(Date.now() / 1000) + AUTH_TTL_HOURS * 3600
+    await dynamo.send(new UpdateCommand({
+      TableName: process.env.DEMO_USAGE_TABLE,
+      Key: { ip: `auth#${userId}` },
+      UpdateExpression: 'ADD #c :inc SET #t = :ttl',
+      ExpressionAttributeNames: { '#c': 'count', '#t': 'ttl' },
+      ExpressionAttributeValues: { ':inc': 1, ':ttl': ttl }
+    }))
+  } catch (error) {
+    console.error('Error incrementing auth usage:', error)
   }
 }
 
@@ -137,7 +170,12 @@ export const handler = async (event) => {
         }
         const githubUser = await response.json()
         console.log('Authenticated user:', githubUser.login)
-        // Authenticated users get unlimited access (or higher limits)
+        // Authenticated users get 30 requests per 5 minutes
+        const authUsage = await getAuthUsage(githubUser.id)
+        if (authUsage >= AUTH_LIMIT) {
+          return { statusCode: 429, headers: cors, body: JSON.stringify({ error: 'Authenticated usage limit exceeded (30 per 5 min)' }) }
+        }
+        await incrementAuthUsage(githubUser.id)
       } catch (error) {
         return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Token verification failed' }) }
       }
