@@ -224,6 +224,7 @@ function fillCanvasWhiteBg() {
 }
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
+  updateButtonStates()
 }
 
 let aiAssistCooldown = false
@@ -452,9 +453,7 @@ async function loadAccountSketches() {
   try {
     const response = await fetch('/get-sketches', {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${authHeader}`
-      }
+      headers: { Authorization: `Bearer ${authHeader}` }
     })
     if (!response.ok) throw new Error('Failed to load sketches')
     const data = await response.json()

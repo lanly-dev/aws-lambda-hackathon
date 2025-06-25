@@ -4,13 +4,31 @@ import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 const dynamo = new DynamoDBClient({})
 
 export const handler = async (event) => {
+  // Route based on HTTP method and path
+  const method = event.httpMethod || event.requestContext?.http?.method
+  const path = event.path || event.rawPath
+
+  if ((method === 'POST' && path && path.includes('save-sketch')) || (method === 'POST' && !path)) {
+    // Save sketch
+    return saveSketchHandler(event)
+  } else if (method === 'GET' && path && path.includes('get-sketches')) {
+    // Get sketches
+    return getSketchesHandler(event)
+  } else {
+    return {
+      statusCode: 404,
+      body: JSON.stringify({ error: 'Not Found' })
+    }
+  }
+}
+
+// Save sketch handler (existing logic)
+export const saveSketchHandler = async (event) => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
-
   try {
-    console.log('Received event:', event) // Debugging log
     const { sketch } = JSON.parse(event.body)
     const authHeader = event.headers?.Authorization || event.headers?.authorization
 
