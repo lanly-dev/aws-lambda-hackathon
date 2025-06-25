@@ -498,3 +498,26 @@ window.downloadCanvas = downloadCanvas
 window.loginWithGitHub = loginWithGitHub
 window.saveToTimeline = saveToTimeline
 window.saveSketchForAccount = saveSketchForAccount
+
+function updateButtonStates() {
+  const isCanvasEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)
+
+  const buttonsToDisable = [
+    document.querySelector('button[onclick="aiAssist()"]'),
+    document.querySelector('button[onclick="clearCanvas()"]'),
+    document.querySelector('button[onclick="downloadCanvas()"]'),
+    document.querySelector('button[onclick="saveSketchForAccount()"]'),
+    document.querySelector('button[onclick="saveToTimeline()"]')
+  ]
+
+  buttonsToDisable.forEach(button => {
+    if (button) button.disabled = isCanvasEmpty
+  })
+}
+
+// Update button states whenever the canvas changes
+canvas.addEventListener('mouseup', updateButtonStates)
+canvas.addEventListener('touchend', updateButtonStates)
+
+// Initial state update
+updateButtonStates()
