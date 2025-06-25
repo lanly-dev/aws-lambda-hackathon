@@ -139,6 +139,7 @@ function showUserInfo() {
     document.getElementById('username').textContent = currentUser.name || currentUser.login
     document.getElementById('login-section').style.display = 'none'
     document.getElementById('user-info').style.display = 'block'
+    loadAccountSketches()
   }
 }
 
@@ -439,6 +440,38 @@ async function saveSketchForAccount() {
   } catch (error) {
     console.error('Error saving sketch:', error)
     alert('An error occurred while saving the sketch')
+  }
+}
+
+async function loadAccountSketches() {
+  const authHeader = localStorage.getItem('githubToken')
+  if (!authHeader) {
+    alert('You must be logged in to load your sketches')
+    return
+  }
+  try {
+    const response = await fetch('/get-sketches', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authHeader}`
+      }
+    })
+    if (!response.ok) throw new Error('Failed to load sketches')
+    const data = await response.json()
+    const sketches = data.sketches || []
+    const div = document.getElementById('sketches')
+    div.innerHTML = ''
+    sketches.forEach(sk => {
+      const img = document.createElement('img')
+      img.src = sk.sketch
+      img.width = 120
+      img.title = sk.sketchId
+      img.style.margin = '4px'
+      img.onclick = () => { const i = new Image(); i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }; i.src = sk.sketch }
+      div.appendChild(img)
+    })
+  } catch (error) {
+    alert('Error loading sketches')
   }
 }
 

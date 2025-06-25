@@ -191,13 +191,11 @@
     }
 
     #status {
-      min-height: 22px;
       color: #0078d7;
       font-weight: 500;
       margin-bottom: 8px;
       text-align: center;
       font-size: 1rem;
-      letter-spacing: 0.5px;
     }
 
     #ai-options {
@@ -326,7 +324,7 @@
         max-height: 96vw;
         min-width: 120px;
         min-height: 120px;
-        margin: 0 auto 20px auto;
+        margin: 0 auto 10px auto;
       }
 
       .toolbar {
@@ -367,7 +365,7 @@
         max-height: 98vw;
         min-width: 80px;
         min-height: 80px;
-        margin: 0 auto 20px auto;
+        margin: 0 auto 10px auto;
       }
 
       .toolbar button,
@@ -407,6 +405,7 @@
         </div>
       </div>
       <canvas id="canvas" width="320" height="320" style="touch-action:none;"></canvas>
+      <div id="status"></div>
       <div class="toolbar">
         <button onclick="clearCanvas()">Clear</button>
         <button onclick="downloadCanvas()">Download</button>
@@ -427,7 +426,6 @@
         </select>
         <button id="ai-assist-button" onclick="aiAssist()">AI Assist</button>
       </div>
-      <div id="status"></div>
       <div id="ai-options"></div>
     </div>
     <div class="right-panel">

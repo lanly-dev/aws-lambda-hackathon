@@ -62,7 +62,7 @@ Resources:
       Environment:
         Variables:
           SKETCHES_TABLE: !Ref SketchTable
-          MODE: dev
+          MODE: dev # Change to 'prod' for production
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SketchTable
@@ -72,6 +72,11 @@ Resources:
           Properties:
             Path: /save-sketch
             Method: POST
+        GetSketchesApi:
+          Type: Api
+          Properties:
+            Path: /get-sketches
+            Method: GET
 
   SketchTable:
     Type: AWS::DynamoDB::Table
