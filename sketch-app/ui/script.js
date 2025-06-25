@@ -470,7 +470,7 @@ async function loadAccountSketches() {
       div.appendChild(img)
     })
   } catch (error) {
-    alert('Error loading sketches')
+    alert('Error loading sketches: ' + error.message)
   }
 }
 

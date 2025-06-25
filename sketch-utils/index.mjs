@@ -137,6 +137,7 @@ export const getSketchesHandler = async (event) => {
       body: JSON.stringify({ sketches: result.Items || [] })
     }
   } catch (error) {
+    console.error('Error retrieving sketches:', error)
     return {
       statusCode: 500,
       headers: cors,

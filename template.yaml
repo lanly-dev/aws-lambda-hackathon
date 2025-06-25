@@ -81,7 +81,7 @@ Resources:
   SketchTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${AWS::StackName}-sketches"
+      TableName: !Sub ${AWS::StackName}-sketches
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: sketchId
@@ -113,7 +113,7 @@ Parameters:
   GitHubClientId:
     Type: String
     Description: GitHub OAuth App Client ID
-    Default: "Ov23liNUvc7QG2vvoSfM"
+    Default: Ov23liNUvc7QG2vvoSfM
   GitHubClientSecret:
     Type: String
     Description: GitHub OAuth App Client Secret
@@ -121,8 +121,8 @@ Parameters:
 
 Outputs:
   SketchApi:
-    Description: "API Gateway endpoint URL for Sketch App"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: API Gateway endpoint URL for Sketch App
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
   SketchFunction:
-    Description: "Sketch Lambda Function ARN"
+    Description: Sketch Lambda Function ARN
     Value: !GetAtt SketchApp.Arn

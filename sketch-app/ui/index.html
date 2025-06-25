@@ -434,7 +434,13 @@
       <div id="sketches"></div>
     </div>
   </div>
-  <script src="ui/script.js"></script>
+  <script>
+    // Dynamically load script.js from /ui/script.js (local/dev) or /Prod/ui/script.js (API Gateway)
+    const pathPrefix = window.location.pathname.startsWith('/Prod') ? '/Prod/ui/script.js' : '/ui/script.js';
+    const script = document.createElement('script');
+    script.src = pathPrefix;
+    document.body.appendChild(script);
+  </script>
 </body>
 
 </html>
