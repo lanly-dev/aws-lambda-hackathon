@@ -51,6 +51,28 @@ Resources:
             Path: /ai-assist
             Method: POST
 
+  SketchUtils:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./sketch-utils/
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          SKETCHES_TABLE: !Ref SketchTable
+          MODE: dev
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SketchTable
+      Events:
+        SaveSketchApi:
+          Type: Api
+          Properties:
+            Path: /save-sketch
+            Method: POST
+
   SketchTable:
     Type: AWS::DynamoDB::Table
     Properties:

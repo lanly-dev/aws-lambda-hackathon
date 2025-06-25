@@ -31,9 +31,17 @@ async function exchangeCodeForToken(code) {
 
     const data = await response.json()
 
+    console.log('Received token and user data:', data) // Debugging log
+
     // Store the real token and user data
     githubToken = data.access_token
     currentUser = data.user
+
+    if (!githubToken) {
+      console.error('Auth token is missing') // Debugging log
+      throw new Error('Failed to retrieve auth token')
+    }
+
     localStorage.setItem('githubToken', githubToken)
     localStorage.setItem('githubUser', JSON.stringify(currentUser))
 
@@ -48,25 +56,44 @@ async function exchangeCodeForToken(code) {
   }
 }
 
-async function verifyGitHubToken() {
+function verifyGitHubToken() {
   try {
-    const response = await fetch('https://api.github.com/user', {
+    console.log('Verifying GitHub token:', githubToken) // Debugging log
+
+    if (!githubToken) {
+      console.error('GitHub token is missing') // Debugging log
+      alert('Your session has expired. Please log in again.')
+      logout()
+      return
+    }
+
+    fetch('https://api.github.com/user', {
       headers: {
         Authorization: `token ${githubToken}`,
         Accept: 'application/vnd.github.v3+json'
       }
     })
-
-    if (response.ok) {
-      currentUser = await response.json()
-      localStorage.setItem('githubUser', JSON.stringify(currentUser))
-      showUserInfo()
-    } else {
-      // Token is invalid
-      logout()
-    }
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw new Error('Token verification failed')
+        }
+      })
+      .then(user => {
+        console.log('Verified user:', user) // Debugging log
+        currentUser = user
+        localStorage.setItem('githubUser', JSON.stringify(user))
+        showUserInfo()
+      })
+      .catch(error => {
+        console.error('Error verifying token:', error)
+        alert('Your session has expired. Please log in again.')
+        logout()
+      })
   } catch (error) {
-    console.error('Token verification failed:', error)
+    console.error('Unexpected error during token verification:', error)
+    alert('Your session has expired. Please log in again.')
     logout()
   }
 }
@@ -363,6 +390,41 @@ function saveToTimeline() {
   addToTimeline(data, 'Saved')
 }
 
+async function saveSketchForAccount() {
+  const canvas = document.getElementById('canvas')
+  const sketchData = canvas.toDataURL('image/png')
+
+  const authHeader = localStorage.getItem('githubToken')
+  console.log('Save Sketch Authorization Header:', authHeader) // Debugging log
+
+  if (!authHeader) {
+    alert('You must be logged in to save sketches')
+    return
+  }
+
+  try {
+    const response = await fetch('/save-sketch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authHeader}`
+      },
+      body: JSON.stringify({ sketch: sketchData })
+    })
+
+    console.log('Save Sketch Response:', response) // Debugging log
+
+    if (!response.ok) {
+      throw new Error('Failed to save sketch')
+    }
+
+    alert('Sketch saved successfully!')
+  } catch (error) {
+    console.error('Error saving sketch:', error)
+    alert('An error occurred while saving the sketch')
+  }
+}
+
 function setupCanvasEvents() {
   // Set up touch events for mobile
   canvas.addEventListener('touchstart', e => {
@@ -435,3 +497,4 @@ window.clearCanvas = clearCanvas
 window.downloadCanvas = downloadCanvas
 window.loginWithGitHub = loginWithGitHub
 window.saveToTimeline = saveToTimeline
+window.saveSketchForAccount = saveSketchForAccount
