@@ -333,21 +333,19 @@ if (!document.getElementById('ai-spinner-style')) {
 // Timeline state
 const timelineState = []
 
-function addToTimeline(imageDataUrl, label = '') {
-  // Prevent duplicate 'Saved' entries
-  if (label === 'Saved') {
-    const idx = timelineState.findIndex(item => item.image === imageDataUrl && item.label === 'Saved')
-    if (idx !== -1) {
-      document.getElementById('status').textContent = 'This sketch is already saved.'
-      // Move to most recent
-      const [item] = timelineState.splice(idx, 1)
-      timelineState.push(item)
-      renderTimeline()
-      return
-    }
+function addToTimeline(imageDataUrl) {
+  // Prevent duplicate entries
+  const idx = timelineState.findIndex(item => item.image === imageDataUrl)
+  if (idx !== -1) {
+    document.getElementById('status').textContent = 'This sketch is already in the timeline.'
+    // Move to most recent
+    const [item] = timelineState.splice(idx, 1)
+    timelineState.push(item)
+    renderTimeline()
+    return
   }
   // Add or move item
-  timelineState.push({ image: imageDataUrl, label })
+  timelineState.push({ image: imageDataUrl })
   // Limit to 10
   if (timelineState.length > 10) timelineState.shift()
   renderTimeline()
@@ -356,7 +354,7 @@ function addToTimeline(imageDataUrl, label = '') {
 function renderTimeline() {
   const timeline = document.getElementById('timeline')
   timeline.innerHTML = ''
-  timelineState.forEach(({ image, label }) => {
+  timelineState.forEach(({ image }) => {
     const wrapper = document.createElement('div')
     wrapper.style.display = 'flex'
     wrapper.style.flexDirection = 'column'
@@ -373,11 +371,11 @@ function renderTimeline() {
     img.style.boxShadow = '0 1px 4px #0001'
     img.style.marginBottom = '4px'
     img.style.cursor = 'pointer'
-    img.title = label ? label : 'Timeline image'
+    img.title = 'Timeline image'
     img.onclick = () => {
       clearStatus()
       // Move this item to the end (most recent)
-      const foundIdx = timelineState.findIndex(item => item.image === image && item.label === label)
+      const foundIdx = timelineState.findIndex(item => item.image === image)
       if (foundIdx !== -1 && foundIdx !== timelineState.length - 1) {
         const [item] = timelineState.splice(foundIdx, 1)
         timelineState.push(item)
@@ -388,14 +386,6 @@ function renderTimeline() {
       i.src = image
     }
     wrapper.appendChild(img)
-    if (label) {
-      const lbl = document.createElement('div')
-      lbl.textContent = label
-      lbl.style.fontSize = '0.8rem'
-      lbl.style.color = '#2d3a5a'
-      lbl.style.textAlign = 'center'
-      wrapper.appendChild(lbl)
-    }
     timeline.appendChild(wrapper)
   })
   // Scroll to end if overflow
@@ -406,7 +396,7 @@ function saveToTimeline() {
   clearStatus()
   fillCanvasWhiteBg()
   const data = canvas.toDataURL('image/png')
-  addToTimeline(data, 'Saved')
+  addToTimeline(data)
 }
 
 async function saveSketchForAccount() {
