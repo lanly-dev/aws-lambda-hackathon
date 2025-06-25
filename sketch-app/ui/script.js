@@ -152,22 +152,13 @@ function updateUIBasedOnAuth() {
 
   // Update style count options
   Array.from(styleCountSelect.options).forEach((option, index) => {
-    if (index > 1) { // Options 3 and 4
-      option.disabled = !isLoggedIn
-      option.textContent = option.textContent.replace(' (Login required)', '')
-      if (!isLoggedIn) {
-        option.textContent += ' (Login required)'
-      }
-    }
+    // Options 3 and 4 are disabled for anonymous users
+    if (index > 1) option.disabled = !isLoggedIn
   })
 
   // Update model options
   Array.from(modelSelect.options).forEach(option => {
-    if (option.value.includes('stability')) {
-      option.disabled = !isLoggedIn
-      option.textContent = option.textContent.replace(' (Login required)', '')
-      if (!isLoggedIn) option.textContent += ' (Login required)'
-    }
+    if (option.value.includes('stability'))  option.disabled = !isLoggedIn
   })
 
   // Reset to safe defaults if logged out
@@ -328,6 +319,47 @@ if (!document.getElementById('ai-spinner-style')) {
   style.id = 'ai-spinner-style'
   style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
   document.head.appendChild(style)
+}
+
+// --- AI Assist Style Tags System ---
+const TAGS = [
+  'Cartoon', 'Pencil', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'
+]
+function renderStyleTags() {
+  const tagContainer = document.getElementById('style-tags')
+  if (!tagContainer) return
+  tagContainer.innerHTML = ''
+  const selected = new Set(JSON.parse(localStorage.getItem('aiStyleTags')||'[]'))
+  TAGS.forEach(tag => {
+    const btn = document.createElement('button')
+    btn.textContent = tag
+    btn.type = 'button'
+    btn.style.cssText = `
+      background: ${selected.has(tag) ? '#0078d7' : '#e6edff'};
+      color: ${selected.has(tag) ? '#fff' : '#2d3a5a'};
+      border: none;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.97rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 3px #bfcfff22;
+      transition: background 0.15s, color 0.15s;
+    `
+    btn.onclick = () => {
+      if (selected.has(tag)) selected.delete(tag); else selected.add(tag)
+      localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
+      renderStyleTags()
+    }
+    tagContainer.appendChild(btn)
+  })
+}
+window.renderStyleTags = renderStyleTags
+// Ensure style tags render after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderStyleTags)
+} else {
+  renderStyleTags()
 }
 
 // Timeline state

@@ -294,6 +294,91 @@
       box-shadow: 0 2px 8px #bfcfff33;
     }
 
+    .ai-assist-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+
+    .ai-assist-btn {
+      padding: 7px 14px;
+      font-size: 0.98rem;
+      min-width: 90px;
+    }
+
+    .ai-assist-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f8faff;
+      border-radius: 7px;
+      padding: 4px 8px;
+      box-shadow: 0 1px 4px #e0e7ff22;
+    }
+
+    .ai-label {
+      font-size: 0.97rem;
+      color: #2d3a5a;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ai-dropdown {
+      padding: 0 6px 0 5px;
+      border-radius: 4px;
+      border: 1px solid #bfcfff;
+      background: #fff;
+      color: #2d3a5a;
+      font-size: 0.97rem;
+      font-weight: 500;
+      min-width: 70px;
+      max-width: 220px;
+      height: 22px;
+      line-height: 18px;
+    }
+
+    .info-icon {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+      text-align: center;
+      border-radius: 50%;
+      background: #e6edff;
+      color: #0078d7;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .info-tooltip {
+      display: none;
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #fff;
+      border: 1px solid #bfcfff;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.92rem;
+      color: #2d3a5a;
+      box-shadow: 0 2px 8px #bfcfff33;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .info-icon:hover .info-tooltip,
+    .info-icon:focus .info-tooltip {
+      display: block !important;
+    }
+
     @media (max-width: 900px) {
       #main {
         flex-direction: column;
@@ -413,25 +498,47 @@
         <button onclick="downloadCanvas()">Download</button>
         <button onclick="saveToTimeline()">Snapshot</button>
         <button id="save-sketch-btn" onclick="saveSketchForAccount()">Save Sketch</button>
-        <select id="model-select">
-          <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
-          <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1 (Login required)
-          </option>
-          <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)
-          </option>
-        </select>
-        <select id="style-count-select">
-          <option value="1">1 Style</option>
-          <option value="2">2 Styles</option>
-          <option value="3" disabled>3 Styles (Login required)</option>
-          <option value="4" disabled>4 Styles (Login required)</option>
-        </select>
-        <button id="ai-assist-button" onclick="aiAssist()">AI Assist</button>
       </div>
-      <div id="timeline"></div>
-      <div id="ai-options"></div>
     </div>
     <div class="right-panel">
+      <h2>AI Assist</h2>
+      <div class="ai-assist-controls">
+        <button id="ai-assist-button" onclick="aiAssist()" class="ai-assist-btn">AI Assist</button>
+        <div class="ai-assist-group">
+          <label for="style-count-select" title="Style count" class="ai-label">
+            Styles:
+            <span class="info-icon" tabindex="0">ⓘ
+              <span class="info-tooltip">3 and 4 options require login.</span>
+            </span>
+          </label>
+          <select id="style-count-select" class="ai-dropdown">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" disabled>3</option>
+            <option value="4" disabled>4</option>
+          </select>
+        </div>
+        <div class="ai-assist-group">
+          <label for="model-select" class="ai-label">
+            Model:
+            <span class="info-icon" tabindex="0">ⓘ
+              <span class="info-tooltip">Stable Diffusion models require login</span>
+            </span>
+          </label>
+          <select id="model-select" class="ai-dropdown">
+          <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
+          <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1</option>
+          <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)
+          </option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <div style="font-size:0.97rem; color:#2d3a5a; font-weight:500; margin-bottom:4px;">Style Tags:</div>
+        <div id="style-tags" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      <div id="ai-options"></div>
+      <div id="timeline"></div>
       <h2>Saved Sketches</h2>
       <div id="sketches"></div>
     </div>
