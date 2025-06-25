@@ -10,13 +10,23 @@ let githubToken = localStorage.getItem('githubToken')
 let currentUser = null
 
 function loginWithGitHub() {
+  const loginButton = document.getElementById('github-login-btn')
+  const errorDiv = document.getElementById('login-error')
+  loginButton.innerHTML = '<span class="spinner"></span> Authenticating...'
+  loginButton.disabled = true
+  errorDiv.textContent = ''
+  // Redirect to GitHub OAuth (no async/await needed here)
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=user:email`
   window.location.href = githubAuthUrl
 }
 
 async function exchangeCodeForToken(code) {
+  const loginButton = document.getElementById('github-login-btn')
+  const errorDiv = document.getElementById('login-error')
   try {
-    document.getElementById('status').textContent = 'Authenticating with GitHub...'
+    loginButton.innerHTML = '<span class="spinner"></span> Authenticating...'
+    loginButton.disabled = true
+    errorDiv.textContent = ''
 
     // Call our backend OAuth endpoint
     const response = await fetch('/auth/github', {
@@ -47,11 +57,14 @@ async function exchangeCodeForToken(code) {
 
     showUserInfo()
     updateUIBasedOnAuth()
-    document.getElementById('status').textContent = 'Successfully logged in!'
-    setTimeout(() => document.getElementById('status').textContent = '', 3000)
+    loginButton.innerHTML = '🔗 Login with GitHub'
+    loginButton.disabled = false
+    errorDiv.textContent = ''
   } catch (error) {
     console.error('Authentication error:', error)
-    document.getElementById('status').textContent = 'Authentication failed. Please try again.'
+    loginButton.innerHTML = '🔗 Login with GitHub'
+    loginButton.disabled = false
+    errorDiv.textContent = 'Authentication failed. Please try again.'
     showLoginSection()
   }
 }
@@ -105,8 +118,12 @@ function logout() {
   localStorage.removeItem('githubUser')
   showLoginSection()
   updateUIBasedOnAuth()
-  document.getElementById('status').textContent = 'Logged out successfully.'
-  setTimeout(() => document.getElementById('status').textContent = '', 3000)
+  // Show logout success message under the button
+  const logoutMsg = document.getElementById('logout-success')
+  if (logoutMsg) {
+    logoutMsg.textContent = 'Logged out successfully.'
+    setTimeout(() => { logoutMsg.textContent = '' }, 3000)
+  }
 }
 
 // Make functions globally accessible for HTML onclick handlers

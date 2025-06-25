@@ -86,7 +86,8 @@
     }
 
     #login-section button {
-      background: linear-gradient(90deg, #24292e 60%, #3b4252 100%);
+      background: #24292e;
+      cursor: pointer;
       color: #fff;
       padding: 10px 24px;
       font-size: 1rem;
@@ -98,8 +99,7 @@
     }
 
     #login-section button:hover {
-      background: linear-gradient(90deg, #3b4252 60%, #24292e 100%);
-      box-shadow: 0 4px 16px #bfcfff55;
+      box-shadow: 0 0 8px gray;
     }
 
     #login-section p {
@@ -398,10 +398,12 @@
       <div id="user-section">
         <div id="login-section">
           <button id="github-login-btn" onclick="loginWithGitHub()">🔗 Login with GitHub</button>
+          <div id="login-error" style="color:#b02a37;font-size:0.97rem;margin-top:6px;"></div>
+          <div id="logout-success" style="color:#28a745;font-size:0.97rem;margin-top:6px;"></div>
         </div>
         <div id="user-info" style="display: none;">
           <span>Welcome, <strong id="username"></strong>!</span>
-          <button onclick="logout()">Logout</button>
+          <button onclick="logout()" style="cursor: pointer;">Logout</button>
         </div>
       </div>
       <canvas id="canvas" width="320" height="320" style="touch-action:none;"></canvas>
