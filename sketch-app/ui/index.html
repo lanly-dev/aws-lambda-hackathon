@@ -433,6 +433,47 @@
       touch-action: none;
     }
 
+    /* Style for user and default style tag buttons */
+    .user-style-tag-btn {
+      display: inline-flex;
+      align-items: center;
+      background: #f4f7ff;
+      color: #2d3a5a;
+      border: 1.5px solid #bfcfff;
+      border-radius: 5px;
+      font-size: 0.97rem;
+      font-weight: 500;
+      margin: 0 6px 6px 0;
+      padding: 4px 12px 4px 12px;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 3px #0001;
+      position: relative;
+    }
+
+    .user-style-tag-btn.selected {
+      background: #dbeafe;
+      border-color: #7faaff;
+      color: #1a2a4a;
+    }
+
+    .remove-style-tag-btn {
+      margin-left: 6px;
+      font-size: 13px;
+      color: #b02a37;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0 2px;
+      border-radius: 3px;
+      transition: background 0.12s;
+    }
+
+    .remove-style-tag-btn:hover {
+      background: #ffeaea;
+    }
+
     @media (max-width: 900px) {
       #main {
         flex-direction: column;
@@ -588,6 +629,10 @@
       </div>
       <div class="style-tags-section">
         <div class="style-tags-label">Style Tags:</div>
+        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+          <input id="new-style-tag-input" type="text" maxlength="24" placeholder="Add style tag..." style="flex:1; min-width:0; padding:4px 8px; border-radius:5px; border:1.5px solid #bfcfff; font-size:0.97rem;" />
+          <button id="add-style-tag-btn" type="button" style="padding:4px 12px; border-radius:5px; background:#e6edff; color:#2d3a5a; border:none; font-size:0.97rem; font-weight:500; cursor:pointer; box-shadow:0 1px 3px #0001;">Add</button>
+        </div>
         <div id="style-tags"></div>
       </div>
       <div id="ai-options"></div>

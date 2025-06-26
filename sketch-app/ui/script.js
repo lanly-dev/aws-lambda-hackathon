@@ -322,30 +322,60 @@ if (!document.getElementById('ai-spinner-style')) {
 }
 
 // --- AI Assist Style Tags System ---
-const TAGS = [
+const DEFAULT_TAGS = [
   'Cartoon', 'Pencil', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'
 ]
+
+function getUserStyleTags() {
+  try {
+    return JSON.parse(localStorage.getItem('userStyleTags') || '[]')
+  } catch { return [] }
+}
+function setUserStyleTags(tags) {
+  localStorage.setItem('userStyleTags', JSON.stringify(tags))
+}
 function renderStyleTags() {
   const tagContainer = document.getElementById('style-tags')
   if (!tagContainer) return
   tagContainer.innerHTML = ''
   const selected = new Set(JSON.parse(localStorage.getItem('aiStyleTags')||'[]'))
-  TAGS.forEach(tag => {
+  const userTags = getUserStyleTags()
+  // Render user-added tags first
+  userTags.forEach((tag, idx) => {
     const btn = document.createElement('button')
     btn.textContent = tag
     btn.type = 'button'
-    btn.style.cssText = `
-      background: ${selected.has(tag) ? '#0078d7' : '#e6edff'};
-      color: ${selected.has(tag) ? '#fff' : '#2d3a5a'};
-      border: none;
-      border-radius: 6px;
-      padding: 4px 12px;
-      font-size: 0.97rem;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 1px 3px #bfcfff22;
-      transition: background 0.15s, color 0.15s;
-    `
+    btn.className = 'user-style-tag-btn'
+    if (selected.has(tag)) btn.classList.add('selected')
+    btn.onclick = () => {
+      if (selected.has(tag)) selected.delete(tag); else selected.add(tag)
+      localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
+      renderStyleTags()
+    }
+    // Add remove button
+    const removeBtn = document.createElement('span')
+    removeBtn.className = 'remove-style-tag-btn'
+    removeBtn.textContent = '×'
+    removeBtn.title = 'Remove tag'
+    removeBtn.onclick = (e) => {
+      e.stopPropagation()
+      userTags.splice(idx, 1)
+      setUserStyleTags(userTags)
+      selected.delete(tag)
+      localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
+      renderStyleTags()
+    }
+    btn.appendChild(removeBtn)
+    tagContainer.appendChild(btn)
+  })
+  // Render default tags
+  DEFAULT_TAGS.forEach(tag => {
+    if (userTags.includes(tag)) return
+    const btn = document.createElement('button')
+    btn.textContent = tag
+    btn.type = 'button'
+    btn.className = 'user-style-tag-btn'
+    if (selected.has(tag)) btn.classList.add('selected')
     btn.onclick = () => {
       if (selected.has(tag)) selected.delete(tag); else selected.add(tag)
       localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
@@ -354,12 +384,39 @@ function renderStyleTags() {
     tagContainer.appendChild(btn)
   })
 }
+function setupAddStyleTagRow() {
+  const input = document.getElementById('new-style-tag-input')
+  const addBtn = document.getElementById('add-style-tag-btn')
+  if (!input || !addBtn) return
+  function addTag() {
+    const val = input.value.trim()
+    if (!val) return
+    // Prevent duplicates (case-insensitive)
+    const userTags = getUserStyleTags()
+    const allTags = userTags.concat(DEFAULT_TAGS)
+    if (allTags.map(t => t.toLowerCase()).includes(val.toLowerCase())) {
+      input.value = ''
+      return
+    }
+    userTags.unshift(val)
+    setUserStyleTags(userTags)
+    input.value = ''
+    renderStyleTags()
+  }
+  addBtn.onclick = addTag
+  input.onkeydown = (e) => { if (e.key === 'Enter') addTag() }
+}
 window.renderStyleTags = renderStyleTags
+window.setupAddStyleTagRow = setupAddStyleTagRow
 // Ensure style tags render after DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderStyleTags)
+  document.addEventListener('DOMContentLoaded', () => {
+    renderStyleTags()
+    setupAddStyleTagRow()
+  })
 } else {
   renderStyleTags()
+  setupAddStyleTagRow()
 }
 
 // Timeline state
