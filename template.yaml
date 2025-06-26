@@ -77,6 +77,11 @@ Resources:
           Properties:
             Path: /get-sketches
             Method: GET
+        SetSketchPublicApi:
+          Type: Api
+          Properties:
+            Path: /set-sketch-public
+            Method: POST
 
   SketchTable:
     Type: AWS::DynamoDB::Table

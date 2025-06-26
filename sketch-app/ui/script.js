@@ -544,7 +544,74 @@ async function saveSketchForAccount(isPublic = false) {
   }
 }
 
-async function loadAccountSketches() {
+// --- Publish/Unpublish Sketch UI Integration ---
+// Add publish/unpublish button and logic to each sketch in the UI
+async function toggleSketchPublic(userId, sketchId, isPublic, callback) {
+  const authHeader = localStorage.getItem('githubToken')
+  if (!authHeader) {
+    alert('You must be logged in to change publish status.')
+    return
+  }
+  try {
+    const response = await fetch('/set-sketch-public', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authHeader}`
+      },
+      body: JSON.stringify({ userId, sketchId, isPublic })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Failed to update publish status')
+    if (callback) callback(true, data)
+  } catch (error) {
+    alert('Error updating publish status: ' + error.message)
+    if (callback) callback(false)
+  }
+}
+
+// Helper to clone the sketch card template and fill it
+function createSketchCard(sk, userId) {
+  const template = document.getElementById('sketch-card-template')
+  if (!template) return null
+  const node = template.content.cloneNode(true)
+  const card = node.querySelector('.sketch-card')
+  const img = card.querySelector('img')
+  img.src = sk.sketch
+  img.width = 120
+  img.title = sk.sketchId
+  img.onclick = () => {
+    const i = new Image()
+    i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
+    i.src = sk.sketch
+  }
+  const pubBtn = card.querySelector('.publish-btn')
+  pubBtn.textContent = sk.isPublic ? 'Unpublish' : 'Publish'
+  pubBtn.setAttribute('data-sketchid', sk.sketchId)
+  pubBtn.setAttribute('data-public', sk.isPublic ? '1' : '0')
+  pubBtn.onclick = async function() {
+    pubBtn.disabled = true
+    pubBtn.textContent = 'Updating...'
+    await toggleSketchPublic(userId, sk.sketchId, !sk.isPublic, (success) => {
+      pubBtn.disabled = false
+      if (success) {
+        loadAccountSketches()
+      } else {
+        pubBtn.textContent = sk.isPublic ? 'Unpublish' : 'Publish'
+      }
+    })
+  }
+  const pubMark = card.querySelector('.published-indicator')
+  if (sk.isPublic) {
+    pubMark.style.display = 'block'
+  } else {
+    pubMark.style.display = 'none'
+  }
+  return node
+}
+
+// Patch loadAccountSketches to use the template from index.html
+loadAccountSketches = async function() {
   const authHeader = localStorage.getItem('githubToken')
   let userId
   try {
@@ -569,16 +636,8 @@ async function loadAccountSketches() {
     const div = document.getElementById('sketches')
     div.innerHTML = ''
     sketches.forEach(sk => {
-      const img = document.createElement('img')
-      img.src = sk.sketch
-      img.width = 120
-      img.title = sk.sketchId
-      img.onclick = () => {
-        const i = new Image()
-        i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
-        i.src = sk.sketch
-      }
-      div.appendChild(img)
+      const card = createSketchCard(sk, userId)
+      if (card) div.appendChild(card)
     })
   } catch (error) {
     alert('Error loading sketches: ' + error.message)

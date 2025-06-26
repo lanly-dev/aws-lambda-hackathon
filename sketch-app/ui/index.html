@@ -633,6 +633,13 @@
       <div id="ai-options"></div>
       <h2>Saved Sketches</h2>
       <div id="sketches"></div>
+      <template id="sketch-card-template">
+        <div class="sketch-card" style="display:inline-block;position:relative;margin:0 8px 8px 0;text-align:center;vertical-align:top;">
+          <img src="" width="120" title="" style="display:block;margin:0 auto 4px auto;cursor:pointer;border-radius:8px;box-shadow:0 1px 4px #0001;">
+          <button class="publish-btn" style="display:block;margin:4px auto 0 auto;font-size:0.85rem;padding:2px 8px;" data-sketchid="" data-public="0">Publish</button>
+          <span class="published-indicator" style="display:none;font-size:0.8rem;color:#28a745;text-align:center;margin-top:2px;">🌍 Published</span>
+        </div>
+      </template>
     </div>
   </div>
   <script>

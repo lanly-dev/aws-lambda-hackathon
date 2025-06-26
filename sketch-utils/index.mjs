@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamo = new DynamoDBClient({})
 
@@ -10,6 +10,7 @@ export const handler = async (event) => {
 
   if ((method === 'POST' && path && path.includes('save-sketch')) || (method === 'POST' && !path)) return saveSketchHandler(event)
   else if (method === 'GET' && path && path.includes('get-sketches')) return getSketchesHandler(event)
+  else if (method === 'POST' && path && path.includes('set-sketch-public')) return setSketchPublicHandler(event)
   else return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) }
 }
 
@@ -147,6 +148,69 @@ export const getSketchesHandler = async (event) => {
     }
   } catch (error) {
     console.error('Error retrieving sketches:', error)
+    return {
+      statusCode: 500,
+      headers: cors,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    }
+  }
+}
+
+// Handler to update the isPublic field of a sketch
+export const setSketchPublicHandler = async (event) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
+  try {
+    let body
+    try {
+      body = JSON.parse(event.body)
+    } catch (e) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Invalid JSON' })
+      }
+    }
+    const { userId, sketchId, isPublic } = body
+    const authHeader = event.headers?.Authorization || event.headers?.authorization
+    if (!authHeader) {
+      return {
+        statusCode: 401,
+        headers: cors,
+        body: JSON.stringify({ error: 'Unauthorized: Missing Authorization header' })
+      }
+    }
+    if (!userId || !sketchId || typeof isPublic === 'undefined') {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Missing userId, sketchId, or isPublic' })
+      }
+    }
+    const isDevMode = process.env.MODE === 'dev'
+    if (isDevMode) {
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ message: 'Sketch public status updated (mock)', sketchId, isPublic })
+      }
+    }
+    // Update the isPublic field in DynamoDB
+    await dynamo.send(new UpdateCommand({
+      TableName: process.env.SKETCHES_TABLE,
+      Key: { userId, sketchId },
+      UpdateExpression: 'SET isPublic = :pub',
+      ExpressionAttributeValues: { ':pub': isPublic ? 1 : 0 }
+    }))
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ message: 'Sketch public status updated', sketchId, isPublic })
+    }
+  } catch (error) {
+    console.error('Error updating sketch public status:', error)
     return {
       statusCode: 500,
       headers: cors,
