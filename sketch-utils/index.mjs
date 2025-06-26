@@ -11,6 +11,7 @@ export const handler = async (event) => {
   if ((method === 'POST' && path && path.includes('save-sketch')) || (method === 'POST' && !path)) return saveSketchHandler(event)
   else if (method === 'GET' && path && path.includes('get-sketches')) return getSketchesHandler(event)
   else if (method === 'POST' && path && path.includes('set-sketch-public')) return setSketchPublicHandler(event)
+  else if (method === 'GET' && path && path.includes('public-sketches')) return getPublicSketchesHandler(event)
   else return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) }
 }
 
@@ -211,6 +212,56 @@ export const setSketchPublicHandler = async (event) => {
     }
   } catch (error) {
     console.error('Error updating sketch public status:', error)
+    return {
+      statusCode: 500,
+      headers: cors,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    }
+  }
+}
+
+// Handler to get public sketches
+export const getPublicSketchesHandler = async (event) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
+  try {
+    const isDevMode = process.env.MODE === 'dev'
+    if (isDevMode) {
+      // Return a mock list of public sketches
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({
+          sketches: [
+            {
+              sketchId: 'mock-public-1',
+              userId: 1,
+              sketch: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
+              createdAt: new Date().toISOString(),
+              isPublic: 1,
+              username: 'demo-user'
+            }
+          ]
+        })
+      }
+    }
+    // Query DynamoDB GSI for public sketches
+    const result = await dynamo.send(new QueryCommand({
+      TableName: process.env.SKETCHES_TABLE,
+      IndexName: 'PublicSketches',
+      KeyConditionExpression: 'isPublic = :pub',
+      ExpressionAttributeValues: { ':pub': 1 },
+      Limit: 50 // Limit to 50 public sketches
+    }))
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ sketches: result.Items || [] })
+    }
+  } catch (error) {
+    console.error('Error retrieving public sketches:', error)
     return {
       statusCode: 500,
       headers: cors,

@@ -644,6 +644,53 @@ loadAccountSketches = async function() {
   }
 }
 
+// --- Public Sketches Section ---
+// Helper to clone the public sketch card template and fill it
+function createPublicSketchCard(sk) {
+  const template = document.getElementById('public-sketch-card-template')
+  if (!template) return null
+  const node = template.content.cloneNode(true)
+  const card = node.querySelector('.public-sketch-card')
+  const img = card.querySelector('img')
+  img.src = sk.sketch
+  img.width = 120
+  img.title = sk.sketchId
+  img.onclick = () => {
+    const i = new Image()
+    i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
+    i.src = sk.sketch
+  }
+  const userSpan = card.querySelector('.public-sketch-user')
+  userSpan.textContent = sk.username || sk.userId || 'Anonymous'
+  return node
+}
+
+// Load and render public sketches
+async function loadPublicSketches() {
+  try {
+    const response = await fetch('/public-sketches', { method: 'GET' })
+    if (!response.ok) throw new Error('Failed to load public sketches')
+    const data = await response.json()
+    const sketches = data.sketches || []
+    const div = document.getElementById('public-sketches')
+    div.innerHTML = ''
+    sketches.forEach(sk => {
+      const card = createPublicSketchCard(sk)
+      if (card) div.appendChild(card)
+    })
+  } catch (error) {
+    const div = document.getElementById('public-sketches')
+    div.innerHTML = '<div class="error">Could not load public sketches.</div>'
+  }
+}
+
+// Load public sketches on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadPublicSketches)
+} else {
+  loadPublicSketches()
+}
+
 function setupCanvasEvents() {
   // Set up touch events for mobile
   canvas.addEventListener('touchstart', e => {

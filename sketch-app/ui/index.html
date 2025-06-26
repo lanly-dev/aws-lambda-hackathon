@@ -561,6 +561,64 @@
         max-width: 60px;
       }
     }
+
+    /* Public Sketches Section */
+    #public-sketches-section {
+      margin-top: 24px;
+    }
+
+    #public-sketches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .public-sketch-card {
+      display: inline-block;
+      position: relative;
+      margin: 0 8px 8px 0;
+      text-align: center;
+      vertical-align: top;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .public-sketch-card:hover {
+      transform: scale(1.02);
+    }
+
+    .public-sketch-card img {
+      border-radius: 10px;
+      border: 1.5px solid #e6edff;
+      box-shadow: 0 1px 4px #0001;
+      background: #f8faff;
+      transition: box-shadow 0.2s, border 0.2s;
+      width: 100%;
+      height: auto;
+      max-width: 120px;
+    }
+
+    .public-sketch-meta {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .error {
+      color: #b02a37;
+      background: #ffeaea;
+      border: 1px solid #f5c2c7;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      font-size: 0.98rem;
+      text-align: center;
+      max-width: 320px;
+      box-shadow: 0 1px 4px #bfcfff22;
+    }
   </style>
 </head>
 
@@ -638,6 +696,20 @@
           <img src="" width="120" title="" style="display:block;margin:0 auto 4px auto;cursor:pointer;border-radius:8px;box-shadow:0 1px 4px #0001;">
           <button class="publish-btn" style="display:block;margin:4px auto 0 auto;font-size:0.85rem;padding:2px 8px;" data-sketchid="" data-public="0">Publish</button>
           <span class="published-indicator" style="display:none;font-size:0.8rem;color:#28a745;text-align:center;margin-top:2px;">🌍 Published</span>
+        </div>
+      </template>
+      <!-- Public Sketches Section -->
+      <section id="public-sketches-section">
+        <h2>Public Sketches</h2>
+        <div id="public-sketches"></div>
+      </section>
+      <!-- Template for public sketch card -->
+      <template id="public-sketch-card-template">
+        <div class="public-sketch-card">
+          <img src="" alt="Public Sketch" />
+          <div class="public-sketch-meta">
+            <span class="public-sketch-user"></span>
+          </div>
         </div>
       </template>
     </div>
