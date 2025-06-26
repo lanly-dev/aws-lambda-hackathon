@@ -457,21 +457,10 @@ function renderTimeline() {
   timeline.innerHTML = ''
   timelineState.forEach(({ image }) => {
     const wrapper = document.createElement('div')
-    wrapper.style.display = 'flex'
-    wrapper.style.flexDirection = 'column'
-    wrapper.style.alignItems = 'center'
-    wrapper.style.minWidth = '80px'
+    wrapper.className = 'timeline-item-wrapper'
     const img = document.createElement('img')
     img.src = image
-    img.style.width = '70px'
-    img.style.height = '70px'
-    img.style.objectFit = 'contain'
-    img.style.border = '2px solid #e6edff'
-    img.style.borderRadius = '6px'
-    img.style.background = '#fff'
-    img.style.boxShadow = '0 1px 4px #0001'
-    img.style.marginBottom = '4px'
-    img.style.cursor = 'pointer'
+    img.className = 'timeline-img'
     img.title = 'Timeline image'
     img.onclick = () => {
       clearStatus()
@@ -584,7 +573,6 @@ async function loadAccountSketches() {
       img.src = sk.sketch
       img.width = 120
       img.title = sk.sketchId
-      img.style.margin = '4px'
       img.onclick = () => {
         const i = new Image()
         i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
