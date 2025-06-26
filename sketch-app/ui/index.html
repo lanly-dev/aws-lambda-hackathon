@@ -65,7 +65,6 @@
       align-items: stretch;
       padding: 24px 24px 12px 24px;
       box-sizing: border-box;
-      overflow-y: auto;
       background: #fff;
     }
 
@@ -304,6 +303,15 @@
       box-shadow: 0 2px 8px #bfcfff33;
     }
 
+    #ai-assist-button[disabled],
+    .ai-assist-btn[disabled] {
+      background: #b7e0c2 !important;
+      color: #e6f4ea !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+      box-shadow: none;
+    }
+
     .ai-assist-controls {
       display: flex;
       align-items: center;
@@ -389,11 +397,48 @@
       display: block !important;
     }
 
+    /* Remove all inline styles from style tag section */
+    .style-tags-section {
+      margin-bottom: 10px;
+    }
+
+    .style-tags-label {
+      font-size: 0.97rem;
+      color: #2d3a5a;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    #login-error {
+      color: #b02a37;
+      font-size: 0.97rem;
+      margin-top: 6px;
+    }
+
+    #logout-success {
+      color: #28a745;
+      font-size: 0.97rem;
+      margin-top: 6px;
+    }
+
+    #user-info {
+      display: none;
+    }
+
+    #user-info.visible {
+      display: block;
+    }
+
+    #canvas {
+      touch-action: none;
+    }
+
     @media (max-width: 900px) {
       #main {
         flex-direction: column;
         height: auto;
         min-height: 100vh;
+        overflow-y: auto;
       }
 
       .left-panel,
@@ -490,15 +535,15 @@
       <div id="user-section">
         <div id="login-section">
           <button id="github-login-btn" type="button" onclick="loginWithGitHub()">🔗 Login with GitHub</button>
-          <div id="login-error" style="color:#b02a37;font-size:0.97rem;margin-top:6px;"></div>
-          <div id="logout-success" style="color:#28a745;font-size:0.97rem;margin-top:6px;"></div>
+          <div id="login-error"></div>
+          <div id="logout-success"></div>
         </div>
-        <div id="user-info" style="display: none;">
+        <div id="user-info">
           <span>Welcome, <strong id="username"></strong>!</span>
           <button type="button" onclick="logout()">Logout</button>
         </div>
       </div>
-      <canvas id="canvas" width="320" height="320" style="touch-action:none;"></canvas>
+      <canvas id="canvas" width="320" height="320"></canvas>
       <div id="status"></div>
       <div class="toolbar">
         <button type="button" onclick="clearCanvas()">Clear</button>
@@ -541,9 +586,9 @@
           </select>
         </div>
       </div>
-      <div style="margin-bottom: 10px;">
-        <div style="font-size:0.97rem; color:#2d3a5a; font-weight:500; margin-bottom:4px;">Style Tags:</div>
-        <div id="style-tags" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      <div class="style-tags-section">
+        <div class="style-tags-label">Style Tags:</div>
+        <div id="style-tags"></div>
       </div>
       <div id="ai-options"></div>
       <h2>Saved Sketches</h2>
