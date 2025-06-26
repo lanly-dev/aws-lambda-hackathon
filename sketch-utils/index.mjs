@@ -8,18 +8,9 @@ export const handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method
   const path = event.path || event.rawPath
 
-  if ((method === 'POST' && path && path.includes('save-sketch')) || (method === 'POST' && !path)) {
-    // Save sketch
-    return saveSketchHandler(event)
-  } else if (method === 'GET' && path && path.includes('get-sketches')) {
-    // Get sketches
-    return getSketchesHandler(event)
-  } else {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ error: 'Not Found' })
-    }
-  }
+  if ((method === 'POST' && path && path.includes('save-sketch')) || (method === 'POST' && !path)) return saveSketchHandler(event)
+  else if (method === 'GET' && path && path.includes('get-sketches')) return getSketchesHandler(event)
+  else return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) }
 }
 
 // Save sketch handler (existing logic)
@@ -29,10 +20,11 @@ export const saveSketchHandler = async (event) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
   try {
-    const { sketch } = JSON.parse(event.body)
+    const { userId, sketch, username, styleTags, model, isPublic } = JSON.parse(event.body)
     const authHeader = event.headers?.Authorization || event.headers?.authorization
 
     console.log('Authorization Header:', authHeader) // Debugging log
+    console.log(event.body)
 
     if (!authHeader) {
       return {
@@ -46,13 +38,18 @@ export const saveSketchHandler = async (event) => {
 
     if (isDevMode) return saveSketchMock(sketch)
 
-    const userId = authHeader.replace('Bearer ', '')
     console.log('Parsed User ID:', userId) // Debugging log
 
     const item = {
       userId,
+      username, // store username
+      createdBy: username, // store createdBy (same as username)
       sketchId: `${userId}-${Date.now()}`,
       sketch,
+      styleTags: styleTags || [], // store style tags
+      model, // store model
+      isPublic: isPublic ? 1 : 0, // store public flag
+      likeCount: 0, // new: store like count, default 0
       createdAt: new Date().toISOString()
     }
 
@@ -123,9 +120,21 @@ export const getSketchesHandler = async (event) => {
       }
     }
     const isDevMode = process.env.MODE === 'dev'
-    const userId = authHeader.replace('Bearer ', '')
+
+    const urlParams = new URLSearchParams(event.queryStringParameters || {})
+    const theId = urlParams.get('userId')
+    if (!theId) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Bad Request: Missing userId parameter' })
+      }
+    }
+
+    const userId = parseInt(theId)
     if (isDevMode) return getSketchesMock(userId)
-    // Production: Query DynamoDB for user's sketches
+    console.log('Parsed User ID:', userId)
+
     const result = await dynamo.send(new QueryCommand({
       TableName: process.env.SKETCHES_TABLE,
       KeyConditionExpression: 'userId = :uid',

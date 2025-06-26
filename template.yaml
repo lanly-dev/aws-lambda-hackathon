@@ -81,11 +81,11 @@ Resources:
   SketchTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}-sketches
+      TableName: !Sub ${AWS::StackName}-sketches-v2
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: userId
-          AttributeType: S
+          AttributeType: N
         - AttributeName: sketchId
           AttributeType: S
         - AttributeName: isPublic

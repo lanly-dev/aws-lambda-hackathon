@@ -500,13 +500,25 @@ function saveToTimeline() {
   addToTimeline(data)
 }
 
+function getCurrentUserObject() {
+  return JSON.parse(localStorage.getItem('githubUser'))
+}
+
 async function saveSketchForAccount(isPublic = false) {
   const canvas = document.getElementById('canvas')
   const sketchData = canvas.toDataURL('image/png')
 
   const authHeader = localStorage.getItem('githubToken')
-  const user = JSON.parse(localStorage.getItem('githubUser') || '{}')
-  const userId = user.id || user.login || user.sub || user.userId
+  let userId
+  let username
+  try {
+    const { id, login } = getCurrentUserObject()
+    userId = id
+    username = login
+  } catch (e) {
+    alert(e.message)
+    return
+  }
   if (!authHeader || !userId) {
     alert('You must be logged in to save sketches')
     return
@@ -524,6 +536,7 @@ async function saveSketchForAccount(isPublic = false) {
       },
       body: JSON.stringify({
         userId,
+        username,
         sketchId,
         sketch: sketchData,
         isPublic: isPublic ? 1 : 0
@@ -544,8 +557,14 @@ async function saveSketchForAccount(isPublic = false) {
 
 async function loadAccountSketches() {
   const authHeader = localStorage.getItem('githubToken')
-  const user = JSON.parse(localStorage.getItem('githubUser') || '{}')
-  const userId = user.id || user.login || user.sub || user.userId
+  let userId
+  try {
+    const user = getCurrentUserObject()
+    userId = user.id
+  } catch (e) {
+    alert(e.message)
+    return
+  }
   if (!authHeader || !userId) {
     alert('You must be logged in to load your sketches')
     return
