@@ -22,17 +22,6 @@ This project is a serverless sketch application with AI assist, built using AWS 
    - AWS SAM CLI
    - Node.js 22.x
 2. **Create `env.json` in the project root:**
-   ```json
-   {
-     "GitHubOAuth": {
-       "GITHUB_CLIENT_ID": "Ov23liNUvc7QG2vvoSfM",
-       "GITHUB_CLIENT_SECRET": "GITHUB_CLIENT_SECRET"
-     },
-     "AiAssist": {
-       "AI_MODE": "dev"
-     }
-   }
-   ```
 3. **Build and start the API locally:**
    ```bash
    sam build
@@ -50,34 +39,13 @@ This project is a serverless sketch application with AI assist, built using AWS 
 
 ### 2. Configure Environment Variables
 - Locally: use `env.json` (see above)
-- In production: use AWS Secrets Manager or SSM Parameter Store
+- In production: use AWS Secrets Manager or SSM Parameter Store, it just input it in `sam deploy --guided` prompt
 
 ### 3. Reference Secrets in `template.yaml`
 ```yaml
 ProviderDetails:
   client_id: '{{resolve:secretsmanager:github-client-id:SecretString:CLIENT_ID}}'
   client_secret: '{{resolve:secretsmanager:github-client-secret:SecretString:CLIENT_SECRET}}'
-```
-
-### 4. Create Secrets in AWS (for production)
-```yaml
-Resources:
-  GitHubClientId:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: github-client-id
-      Description: GitHub OAuth App Client ID
-  GitHubClientSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: github-client-secret
-      Description: GitHub OAuth App Client Secret
-```
-
-After deploying, set the secret values:
-```sh
-aws secretsmanager put-secret-value --secret-id github-client-id --secret-string '{"CLIENT_ID":"your-client-id-here"}'
-aws secretsmanager put-secret-value --secret-id github-client-secret --secret-string '{"CLIENT_SECRET":"your-client-secret-here"}'
 ```
 
 ## How GitHub OAuth Works
@@ -96,9 +64,7 @@ aws secretsmanager put-secret-value --secret-id github-client-secret --secret-st
   - **Test credentials:** Run `node test-credentials.mjs` to verify your setup.
 
 ## Security Notes
-- **Tokens are stored in browser localStorage**
 - **Backend always verifies GitHub tokens**
-- **Rate limiting** for anonymous users is enforced by IP
 
 ## Testing
 ### Anonymous Usage
