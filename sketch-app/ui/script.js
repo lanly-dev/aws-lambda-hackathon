@@ -5,7 +5,6 @@ let drawing = false
 // GitHub OAuth Configuration
 const GITHUB_CLIENT_ID = 'Ov23liNUvc7QG2vvoSfM' // Your GitHub OAuth App Client ID
 const GITHUB_REDIRECT_URI = window.location.origin + window.location.pathname // Current page
-console.log('⭐⭐', GITHUB_REDIRECT_URI)
 let githubToken = localStorage.getItem('githubToken')
 let currentUser = null
 
@@ -15,7 +14,7 @@ function loginWithGitHub() {
   loginButton.innerHTML = '<span class="spinner"></span> Authenticating...'
   loginButton.disabled = true
   errorDiv.textContent = ''
-  // Redirect to GitHub OAuth (no async/await needed here)
+  // Redirect to GitHub OAuth
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=user:email`
   window.location.href = githubAuthUrl
 }
