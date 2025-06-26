@@ -43,7 +43,7 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          AI_MODE: dev # Change to 'prod' for production
+          AI_MODE: dev
       Events:
         AiAssistApi:
           Type: Api
@@ -62,7 +62,7 @@ Resources:
       Environment:
         Variables:
           SKETCHES_TABLE: !Ref SketchTable
-          MODE: dev # Change to 'prod' for production
+          MODE: dev
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SketchTable
@@ -84,11 +84,26 @@ Resources:
       TableName: !Sub ${AWS::StackName}-sketches
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
         - AttributeName: sketchId
           AttributeType: S
+        - AttributeName: isPublic
+          AttributeType: N
       KeySchema:
-        - AttributeName: sketchId
+        - AttributeName: userId
           KeyType: HASH
+        - AttributeName: sketchId
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: PublicSketches
+          KeySchema:
+            - AttributeName: isPublic
+              KeyType: HASH
+            - AttributeName: sketchId
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
   GitHubOAuth:
     Type: AWS::Serverless::Function

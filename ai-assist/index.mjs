@@ -12,10 +12,10 @@ const AUTH_TTL_HOURS = 5 / 60 // 5 minutes in hours
 function getMockStyles() {
   console.warn('⚠️⚠️ Using mock styles for development/testing. Set AI_MODE=prod to use real AI generation.')
   const mockImages = [
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+1n1cAAAAASUVORK5CYII=', // red
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8AAAgMBAJcF+ZcAAAAASUVORK5CYII=', // green
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8zwAAAgMBAJcF+ZcAAAAASUVORK5CYII=', // blue
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAwMCAO+1n1cAAAAASUVORK5CYII='  // black
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAACZgbYfAAAAFElEQVR42mP8z/CfHgAGgwJ/lQnK0wAAAABJRU5ErkJggg==', // bright red
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAACZgbYfAAAAFElEQVR42mP8/5/hPwAHggJ/6t6vWwAAAABJRU5ErkJggg==', // bright green
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAACZgbYfAAAAFElEQVR42mP8/4/hPwAHggJ/6t6vWwAAAABJRU5ErkJggg==', // bright blue
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAACZgbYfAAAAFElEQVR42mP8z/CfHgAGgwJ/lQnK0wAAAABJRU5ErkJggg==' // bright yellow
   ]
   return [
     { name: 'Style A', image: mockImages[0] },

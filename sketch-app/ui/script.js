@@ -297,7 +297,7 @@ async function aiAssist() {
   optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
   result.styles.forEach((style) => {
     const img = document.createElement('img')
-    img.src = style.image
+    img.src = `data:image/png;base64,${style.image}`
     img.width = 160
     img.title = style.name
     img.onclick = () => {
@@ -305,7 +305,7 @@ async function aiAssist() {
       img.classList.add('selected')
       const i = new Image()
       i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); addToTimeline(i.src, 'Applied') }
-      i.src = style.image
+      i.src = `data:image/png;base64,${style.image}`
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
     optionsDiv.appendChild(img)
@@ -431,17 +431,20 @@ function saveToTimeline() {
   addToTimeline(data)
 }
 
-async function saveSketchForAccount() {
+async function saveSketchForAccount(isPublic = false) {
   const canvas = document.getElementById('canvas')
   const sketchData = canvas.toDataURL('image/png')
 
   const authHeader = localStorage.getItem('githubToken')
-  console.log('Save Sketch Authorization Header:', authHeader) // Debugging log
-
-  if (!authHeader) {
+  const user = JSON.parse(localStorage.getItem('githubUser') || '{}')
+  const userId = user.id || user.login || user.sub || user.userId
+  if (!authHeader || !userId) {
     alert('You must be logged in to save sketches')
     return
   }
+
+  // Generate a unique sketchId (timestamp + random)
+  const sketchId = 'sketch-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
   try {
     const response = await fetch('/save-sketch', {
@@ -450,16 +453,20 @@ async function saveSketchForAccount() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authHeader}`
       },
-      body: JSON.stringify({ sketch: sketchData })
+      body: JSON.stringify({
+        userId,
+        sketchId,
+        sketch: sketchData,
+        isPublic: isPublic ? 1 : 0
+      })
     })
-
-    console.log('Save Sketch Response:', response) // Debugging log
 
     if (!response.ok) {
       throw new Error('Failed to save sketch')
     }
 
     alert('Sketch saved successfully!')
+    loadAccountSketches()
   } catch (error) {
     console.error('Error saving sketch:', error)
     alert('An error occurred while saving the sketch')
@@ -468,12 +475,14 @@ async function saveSketchForAccount() {
 
 async function loadAccountSketches() {
   const authHeader = localStorage.getItem('githubToken')
-  if (!authHeader) {
+  const user = JSON.parse(localStorage.getItem('githubUser') || '{}')
+  const userId = user.id || user.login || user.sub || user.userId
+  if (!authHeader || !userId) {
     alert('You must be logged in to load your sketches')
     return
   }
   try {
-    const response = await fetch('/get-sketches', {
+    const response = await fetch(`/get-sketches?userId=${encodeURIComponent(userId)}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${authHeader}` }
     })
