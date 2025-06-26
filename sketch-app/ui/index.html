@@ -204,6 +204,14 @@
       box-shadow: none;
     }
 
+    #add-style-tag-btn[disabled] {
+      background: #e0e0e0 !important;
+      color: #a0a0a0 !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+      box-shadow: none;
+    }
+
     #status {
       color: #0078d7;
       font-weight: 500;
@@ -398,41 +406,7 @@
     }
 
     /* Remove all inline styles from style tag section */
-    .style-tags-section {
-      margin-bottom: 10px;
-    }
-
-    .style-tags-label {
-      font-size: 0.97rem;
-      color: #2d3a5a;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    #login-error {
-      color: #b02a37;
-      font-size: 0.97rem;
-      margin-top: 6px;
-    }
-
-    #logout-success {
-      color: #28a745;
-      font-size: 0.97rem;
-      margin-top: 6px;
-    }
-
-    #user-info {
-      display: none;
-    }
-
-    #user-info.visible {
-      display: block;
-    }
-
-    #canvas {
-      touch-action: none;
-    }
-
+    /* Only keep essential style tag CSS below */
     .user-style-tag-btn {
       display: inline-flex;
       align-items: center;
@@ -443,14 +417,13 @@
       font-size: 0.88rem;
       font-weight: 500;
       margin: 0 4px 4px 0;
-      padding: 2px 7px 2px 7px;
+      padding: 2px 7px;
       cursor: pointer;
       transition: background 0.15s, box-shadow 0.15s;
       box-shadow: 0 1px 2px #0001;
       max-width: 120px;
       max-height: 28px;
       line-height: 1.2;
-      position: relative;
     }
 
     .user-style-tag-btn.selected {
@@ -632,7 +605,7 @@
       </div>
       <div class="style-tags-section">
         <div class="style-tags-label">Style Tags:</div>
-        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+        <div style="display: flex; gap: 6px; margin-top: 6px; margin-bottom: 6px;">
           <input id="new-style-tag-input" type="text" maxlength="24" placeholder="Add style tag..." style="flex:1; min-width:0; padding:4px 8px; border-radius:5px; border:1.5px solid #bfcfff; font-size:0.97rem;" />
           <button id="add-style-tag-btn" type="button" style="padding:4px 12px; border-radius:5px; background:#e6edff; color:#2d3a5a; border:none; font-size:0.97rem; font-weight:500; cursor:pointer; box-shadow:0 1px 3px #0001;">Add</button>
         </div>

@@ -303,7 +303,7 @@ async function aiAssist() {
       Array.from(optionsDiv.querySelectorAll('img')).forEach(im => im.classList.remove('selected'))
       img.classList.add('selected')
       const i = new Image()
-      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); addToTimeline(i.src, 'Applied') }
+      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); addToTimeline(i.src, 'Applied'); updateButtonStates() }
       i.src = `data:image/png;base64,${style.image}`
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
@@ -387,6 +387,15 @@ function setupAddStyleTagRow() {
   const input = document.getElementById('new-style-tag-input')
   const addBtn = document.getElementById('add-style-tag-btn')
   if (!input || !addBtn) return
+
+  function validateInput() {
+    const val = input.value.trim()
+    const userTags = getUserStyleTags()
+    const allTags = userTags.concat(DEFAULT_TAGS)
+    const isDuplicate = allTags.map(t => t.toLowerCase()).includes(val.toLowerCase())
+    addBtn.disabled = !val || isDuplicate
+  }
+
   function addTag() {
     const val = input.value.trim()
     if (!val) return
@@ -395,15 +404,19 @@ function setupAddStyleTagRow() {
     const allTags = userTags.concat(DEFAULT_TAGS)
     if (allTags.map(t => t.toLowerCase()).includes(val.toLowerCase())) {
       input.value = ''
+      validateInput()
       return
     }
     userTags.unshift(val)
     setUserStyleTags(userTags)
     input.value = ''
     renderStyleTags()
+    validateInput()
   }
   addBtn.onclick = addTag
   input.onkeydown = (e) => { if (e.key === 'Enter') addTag() }
+  input.addEventListener('input', validateInput)
+  validateInput()
 }
 window.renderStyleTags = renderStyleTags
 window.setupAddStyleTagRow = setupAddStyleTagRow
@@ -470,7 +483,7 @@ function renderTimeline() {
         renderTimeline()
       }
       const i = new Image()
-      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }
+      i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
       i.src = image
     }
     wrapper.appendChild(img)
@@ -553,7 +566,11 @@ async function loadAccountSketches() {
       img.width = 120
       img.title = sk.sketchId
       img.style.margin = '4px'
-      img.onclick = () => { const i = new Image(); i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0) }; i.src = sk.sketch }
+      img.onclick = () => {
+        const i = new Image()
+        i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
+        i.src = sk.sketch
+      }
       div.appendChild(img)
     })
   } catch (error) {
