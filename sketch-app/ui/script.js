@@ -293,7 +293,7 @@ async function aiAssist() {
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')
-  optionsDiv.innerHTML = '<b>Pick a style:</b><br>'
+  optionsDiv.innerHTML = '<div style="margin-bottom:6px">Pick a style:</div><br>'
   result.styles.forEach((style) => {
     const img = document.createElement('img')
     img.src = `data:image/png;base64,${style.image}`

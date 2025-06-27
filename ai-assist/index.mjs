@@ -26,7 +26,7 @@ function getMockStyles() {
 }
 
 async function callBedrockStyle(base64Png, prompt, modelId) {
-  const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-west-2' })
+  const client = new BedrockRuntimeClient({ region: 'us-west-2' })
   if (modelId.startsWith('amazon.titan-image-generator')) {
     const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
     // Debug: Log base64 length and preview URL
