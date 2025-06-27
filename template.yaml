@@ -62,10 +62,13 @@ Resources:
       Environment:
         Variables:
           SKETCHES_TABLE: !Ref SketchTable
+          SKETCH_PARTS_TABLE: !Ref SketchPartsTable
           MODE: dev
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SketchTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SketchPartsTable
       Events:
         SaveSketchApi:
           Type: Api
@@ -91,7 +94,7 @@ Resources:
   SketchTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}-sketches-v2
+      TableName: !Sub ${AWS::StackName}-sketches
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: userId
@@ -114,6 +117,22 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+
+  SketchPartsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-sketch-parts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: sketchId
+          AttributeType: S
+        - AttributeName: partNumber
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sketchId
+          KeyType: HASH
+        - AttributeName: partNumber
+          KeyType: RANGE
 
   GitHubOAuth:
     Type: AWS::Serverless::Function

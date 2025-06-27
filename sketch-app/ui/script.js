@@ -493,7 +493,7 @@ async function saveSketchForAccount(isPublic = false) {
     userId = id
     username = login
   } catch (e) {
-    alert(e.message)
+    console.error('Error getting user info:', e.message)
     return
   }
   if (!authHeader || !userId) {
@@ -521,7 +521,6 @@ async function saveSketchForAccount(isPublic = false) {
     })
 
     if (!response.ok) throw new Error('Failed to save sketch')
-    alert('Sketch saved successfully!')
     loadAccountSketches()
   } catch (error) {
     console.error('Error saving sketch:', error)
@@ -627,12 +626,26 @@ loadAccountSketches = async function () {
     const user = getCurrentUserObject()
     userId = user.id
   } catch (e) {
-    alert(e.message)
+    console.error(e.message)
     return
   }
-  if (!authHeader || !userId) {
-    alert('You must be logged in to load your sketches')
-    return
+  if (!authHeader || !userId) return
+
+  const errorDiv = document.getElementById('sketches-error')
+  let loadingDiv = document.getElementById('sketches-loading')
+  if (!loadingDiv) {
+    loadingDiv = document.createElement('div')
+    loadingDiv.id = 'sketches-loading'
+    loadingDiv.style.color = '#0078d7'
+    loadingDiv.style.marginBottom = '6px'
+    loadingDiv.style.fontWeight = '500'
+    errorDiv.parentNode.insertBefore(loadingDiv, errorDiv)
+  }
+  loadingDiv.textContent = 'Loading...'
+  loadingDiv.style.display = ''
+  if (errorDiv) {
+    errorDiv.textContent = ''
+    errorDiv.style.display = 'none'
   }
   try {
     const response = await fetch(`/get-sketches?userId=${encodeURIComponent(userId)}`, {
@@ -642,14 +655,37 @@ loadAccountSketches = async function () {
     if (!response.ok) throw new Error('Failed to load sketches')
     const data = await response.json()
     const sketches = data.sketches || []
+    const failedSketches = data.failedSketches || []
     const div = document.getElementById('sketches')
     div.innerHTML = ''
+    let errorMsg = ''
     sketches.forEach(sk => {
+      if (sk.error) {
+        errorMsg += `Error loading sketch ${sk.sketchId}: ${sk.error}\n`
+        return
+      }
       const card = createSketchCard(sk, userId)
       if (card) div.appendChild(card)
     })
+    if (failedSketches.length > 0) {
+      errorMsg += `Some sketches could not be loaded: ${failedSketches.join(', ')}\n`
+    }
+    loadingDiv.style.display = 'none'
+    if (errorDiv) {
+      if (errorMsg) {
+        errorDiv.textContent = errorMsg.trim()
+        errorDiv.style.display = ''
+      } else {
+        errorDiv.textContent = ''
+        errorDiv.style.display = 'none'
+      }
+    }
   } catch (error) {
-    alert('Error loading sketches: ' + error.message)
+    loadingDiv.style.display = 'none'
+    if (errorDiv) {
+      errorDiv.textContent = 'Error loading sketches: ' + error.message
+      errorDiv.style.display = ''
+    }
   }
 }
 
@@ -857,4 +893,9 @@ if (document.readyState === 'loading') {
   renderStyleTags()
   setupAddStyleTagRow()
   setupDescriptionField()
+}
+
+// Add refresh button event
+if (document.getElementById('refresh-sketches-btn')) {
+  document.getElementById('refresh-sketches-btn').onclick = () => loadAccountSketches()
 }

@@ -25,9 +25,6 @@ export const saveSketchHandler = async (event) => {
     const { userId, sketch, username, styleTags, model, isPublic } = JSON.parse(event.body)
     const authHeader = event.headers?.Authorization || event.headers?.authorization
 
-    console.log('Authorization Header:', authHeader) // Debugging log
-    console.log(event.body)
-
     if (!authHeader) {
       return {
         statusCode: 401,
@@ -40,32 +37,52 @@ export const saveSketchHandler = async (event) => {
 
     if (isDevMode) return saveSketchMock(sketch)
 
-    console.log('Parsed User ID:', userId) // Debugging log
+    const sketchId = `${userId}-${Date.now()}`
+    const base64Parts = []
+    const maxPartSize = 300 * 1024 // 300 KB
 
-    const item = {
+    for (let i = 0; i < sketch.length; i += maxPartSize) {
+      base64Parts.push(sketch.slice(i, i + maxPartSize))
+    }
+
+    const metadataItem = {
       userId,
-      username, // store username
-      createdBy: username, // store createdBy (same as username)
-      sketchId: `${userId}-${Date.now()}`,
-      sketch,
-      styleTags: styleTags || [], // store style tags
-      model, // store model
-      isPublic: isPublic ? 1 : 0, // store public flag
-      likeCount: 0, // new: store like count, default 0
-      createdAt: new Date().toISOString()
+      username,
+      sketchId,
+      styleTags: styleTags || [],
+      model,
+      isPublic: isPublic ? 1 : 0,
+      likeCount: 0,
+      createdAt: new Date().toISOString(),
+      totalParts: base64Parts.length
     }
 
     await dynamo.send(
       new PutCommand({
         TableName: process.env.SKETCHES_TABLE,
-        Item: item
+        Item: metadataItem
       })
     )
+
+    for (let partNumber = 0; partNumber < base64Parts.length; partNumber++) {
+      const partItem = {
+        sketchId,
+        partNumber,
+        data: base64Parts[partNumber]
+      }
+
+      await dynamo.send(
+        new PutCommand({
+          TableName: process.env.SKETCH_PARTS_TABLE,
+          Item: partItem
+        })
+      )
+    }
 
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ message: 'Sketch saved successfully', item })
+      body: JSON.stringify({ message: 'Sketch saved successfully', metadataItem })
     }
   } catch (error) {
     console.error('Error saving sketch:', error)
@@ -137,15 +154,31 @@ export const getSketchesHandler = async (event) => {
     if (isDevMode) return getSketchesMock(userId)
     console.log('Parsed User ID:', userId)
 
-    const result = await dynamo.send(new QueryCommand({
+    const sketchesResult = await dynamo.send(new QueryCommand({
       TableName: process.env.SKETCHES_TABLE,
       KeyConditionExpression: 'userId = :uid',
       ExpressionAttributeValues: { ':uid': userId }
     }))
+
+    const sketches = sketchesResult.Items || []
+
+    for (const sketch of sketches) {
+      const partsResult = await dynamo.send(new QueryCommand({
+        TableName: process.env.SKETCH_PARTS_TABLE,
+        KeyConditionExpression: 'sketchId = :sid',
+        ExpressionAttributeValues: { ':sid': sketch.sketchId }
+      }))
+
+      const parts = partsResult.Items || []
+      parts.sort((a, b) => a.partNumber - b.partNumber) // Ensure parts are in order
+
+      sketch.sketch = parts.map(part => part.data).join('') // Reconstruct base64 string
+    }
+
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ sketches: result.Items || [] })
+      body: JSON.stringify({ sketches })
     }
   } catch (error) {
     console.error('Error retrieving sketches:', error)

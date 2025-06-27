@@ -603,15 +603,7 @@
 
     .error {
       color: #b02a37;
-      background: #ffeaea;
-      border: 1px solid #f5c2c7;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin: 8px 0;
-      font-size: 0.98rem;
-      text-align: center;
-      max-width: 320px;
-      box-shadow: 0 1px 4px #bfcfff22;
+      display: none;
     }
 
     .sketch-img-container {
@@ -701,6 +693,16 @@
       font-weight: 500;
       cursor: pointer;
       box-shadow: 0 1px 3px #0001;
+    }
+
+    #refresh-sketches-btn {
+      margin-left: 3px;
+      font-size: 1em;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
     }
 
     /* Sketch card template styles */
@@ -834,7 +836,9 @@
         <div id="style-tags"></div>
       </div>
       <div id="ai-options"></div>
-      <h2>Saved Sketches</h2>
+      <h2>Saved Sketches <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button></h2>
+      <div id="sketches-loading" style="display:none;">Loading...</div>
+      <div id="sketches-error" class="error"></div>
       <div id="sketches"></div>
       <template id="sketch-card-template">
         <div class="sketch-card">
