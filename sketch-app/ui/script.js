@@ -283,10 +283,13 @@ async function aiAssist() {
     headers.Authorization = `Bearer ${githubToken}`
   }
 
+  const styleTags = JSON.parse(localStorage.getItem('aiStyleTags') || '[]')
+  const description = localStorage.getItem('aiDescription')
+
   const res = await fetch('/ai-assist', {
     method: 'POST',
     headers,
-    body: JSON.stringify({ image: data, model, styleCount })
+    body: JSON.stringify({ image: data, model, styleCount, description, styleTags  })
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')

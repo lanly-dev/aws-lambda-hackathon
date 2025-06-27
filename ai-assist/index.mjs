@@ -25,27 +25,33 @@ function getMockStyles() {
   ]
 }
 
-async function callBedrockStyle(base64Png, prompt, modelId) {
+/**
+ * @returns {Promise<string[]>}
+ */
+async function callBedrockStyle(base64Png, count, prompt, modelId) {
   const client = new BedrockRuntimeClient({ region: 'us-west-2' })
   if (modelId.startsWith('amazon.titan-image-generator')) {
     const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
     // Debug: Log base64 length and preview URL
     console.log('[DEBUG] Received base64 length:', base64.length)
     console.log('[DEBUG] Preview sketch URL:', 'data:image/png;base64', base64)
+
+    // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
     const payload = {
       taskType: 'TEXT_IMAGE',
       textToImageParams: {
         conditionImage: base64,
         controlMode: 'SEGMENTATION',
-        text: 'a completed artwork',
-        controlStrength : 0.8
+        text: prompt,
+        controlStrength: 0.8
       },
       imageGenerationConfig: {
         width: 512,
         height: 512,
         quality: 'standard',
         cfgScale: 8.0,
-        numberOfImages: 1
+        numberOfImages: count,
+        seed: Math.floor(Math.random() * 2147483646)
       }
     }
 
@@ -61,7 +67,7 @@ async function callBedrockStyle(base64Png, prompt, modelId) {
       // The response includes an array of base64-encoded PNG images
       /** @type {{images: string[]}} */
       const responseBody = JSON.parse(decodedResponseBody)
-      return responseBody.images[0] // Base64-encoded image data
+      return responseBody.images
     } catch (error) {
       console.error(`ERROR: Can't invoke '${modelId}'. Reason: ${error.message}`)
       throw error
@@ -143,7 +149,7 @@ export const handler = async (event) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
   try {
-    const { image, model, styleCount } = JSON.parse(event.body)
+    const { image, model, styleCount, description, styleTags } = JSON.parse(event.body)
     const count = Math.max(1, Math.min(Number(styleCount) || 4, 4))
 
     // Check for GitHub token in Authorization header
@@ -188,16 +194,15 @@ export const handler = async (event) => {
       const styles = allStyles.slice(0, count)
       return { statusCode: 200, headers: cors, body: JSON.stringify({ styles }) }
     }
-    // Generate N styles using different prompts (prod)
-    const prompts = [
-      'A vibrant cartoon style',
-      'A realistic painting style',
-      'A pencil sketch style',
-      'A futuristic digital art style'
-    ].slice(0, count)
-    const styles = await Promise.all(prompts.map(async (prompt, idx) => ({
-      name: `Style ${String.fromCharCode(65 + idx)}`,
-      image: await callBedrockStyle(image, prompt, model)
+
+    const prompt = `${description}, ${styleTags.join(', ')}`
+    const outArray = await callBedrockStyle(image, count, prompt, model)
+
+    const styles = await Promise.all(outArray.map(async (output, idx) => ({
+      name: `Style ${idx + 1}`,
+      description,
+      tags: styleTags,
+      image: output
     })))
     return { statusCode: 200, headers: cors, body: JSON.stringify({ styles }) }
   } catch (e) {
