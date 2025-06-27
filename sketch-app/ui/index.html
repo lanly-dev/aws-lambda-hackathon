@@ -695,7 +695,7 @@
       box-shadow: 0 1px 3px #0001;
     }
 
-    #refresh-sketches-btn {
+    #refresh-sketches-btn, #refresh-public-sketches-btn {
       margin-left: 3px;
       font-size: 1em;
       cursor: pointer;
@@ -855,7 +855,9 @@
       </template>
       <!-- Public Sketches Section -->
       <section id="public-sketches-section">
-        <h2>Public Sketches</h2>
+        <h2>Public Sketches <button id="refresh-public-sketches-btn" type="button" title="Refresh">🔄</button></h2>
+        <div id="public-sketches-loading" style="display:none;">Loading...</div>
+        <div id="public-sketches-error" class="error"></div>
         <div id="public-sketches"></div>
       </section>
       <!-- Template for public sketch card -->

@@ -633,6 +633,7 @@ loadAccountSketches = async function () {
 
   const errorDiv = document.getElementById('sketches-error')
   let loadingDiv = document.getElementById('sketches-loading')
+  const sketchesDiv = document.getElementById('sketches')
   if (!loadingDiv) {
     loadingDiv = document.createElement('div')
     loadingDiv.id = 'sketches-loading'
@@ -643,6 +644,7 @@ loadAccountSketches = async function () {
   }
   loadingDiv.textContent = 'Loading...'
   loadingDiv.style.display = ''
+  if (sketchesDiv) sketchesDiv.style.display = 'none'
   if (errorDiv) {
     errorDiv.textContent = ''
     errorDiv.style.display = 'none'
@@ -671,6 +673,7 @@ loadAccountSketches = async function () {
       errorMsg += `Some sketches could not be loaded: ${failedSketches.join(', ')}\n`
     }
     loadingDiv.style.display = 'none'
+    if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
       if (errorMsg) {
         errorDiv.textContent = errorMsg.trim()
@@ -682,6 +685,7 @@ loadAccountSketches = async function () {
     }
   } catch (error) {
     loadingDiv.style.display = 'none'
+    if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
       errorDiv.textContent = 'Error loading sketches: ' + error.message
       errorDiv.style.display = ''
@@ -710,22 +714,39 @@ function createPublicSketchCard(sk) {
   return node
 }
 
-// Load and render public sketches
+// Load and render public sketches with loading and error UI
 async function loadPublicSketches() {
+  const loadingDiv = document.getElementById('public-sketches-loading')
+  const errorDiv = document.getElementById('public-sketches-error')
+  const sketchesDiv = document.getElementById('public-sketches')
+  if (loadingDiv) {
+    loadingDiv.style.display = ''
+    loadingDiv.textContent = 'Loading...'
+  }
+  if (sketchesDiv) sketchesDiv.style.display = 'none'
+  if (errorDiv) {
+    errorDiv.textContent = ''
+    errorDiv.style.display = 'none'
+  }
   try {
     const response = await fetch('/public-sketches', { method: 'GET' })
     if (!response.ok) throw new Error('Failed to load public sketches')
     const data = await response.json()
     const sketches = data.sketches || []
-    const div = document.getElementById('public-sketches')
-    div.innerHTML = ''
+    sketchesDiv.innerHTML = ''
     sketches.forEach(sk => {
       const card = createPublicSketchCard(sk)
-      if (card) div.appendChild(card)
+      if (card) sketchesDiv.appendChild(card)
     })
+    if (loadingDiv) loadingDiv.style.display = 'none'
+    if (sketchesDiv) sketchesDiv.style.display = ''
   } catch (error) {
-    const div = document.getElementById('public-sketches')
-    div.innerHTML = '<div class="error">Could not load public sketches.</div>'
+    if (loadingDiv) loadingDiv.style.display = 'none'
+    if (sketchesDiv) sketchesDiv.style.display = ''
+    if (errorDiv) {
+      errorDiv.textContent = 'Could not load public sketches.'
+      errorDiv.style.display = ''
+    }
   }
 }
 
@@ -898,6 +919,11 @@ if (document.readyState === 'loading') {
 // Add refresh button event
 if (document.getElementById('refresh-sketches-btn')) {
   document.getElementById('refresh-sketches-btn').onclick = () => loadAccountSketches()
+}
+
+// Add refresh button event for public sketches
+if (document.getElementById('refresh-public-sketches-btn')) {
+  document.getElementById('refresh-public-sketches-btn').onclick = () => loadPublicSketches()
 }
 
 // Delete a sketch for the current user
