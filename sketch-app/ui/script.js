@@ -125,9 +125,6 @@ function logout() {
   }
 }
 
-// Make functions globally accessible for HTML onclick handlers
-window.logout = logout
-
 function showLoginSection() {
   document.getElementById('login-section').style.display = 'block'
   document.getElementById('user-info').style.display = 'none'
@@ -157,7 +154,7 @@ function updateUIBasedOnAuth() {
 
   // Update model options
   Array.from(modelSelect.options).forEach(option => {
-    if (option.value.includes('stability'))  option.disabled = !isLoggedIn
+    if (option.value.includes('stability')) option.disabled = !isLoggedIn
   })
 
   // Reset to safe defaults if logged out
@@ -337,7 +334,7 @@ function renderStyleTags() {
   const tagContainer = document.getElementById('style-tags')
   if (!tagContainer) return
   tagContainer.innerHTML = ''
-  const selected = new Set(JSON.parse(localStorage.getItem('aiStyleTags')||'[]'))
+  const selected = new Set(JSON.parse(localStorage.getItem('aiStyleTags') || '[]'))
   const userTags = getUserStyleTags()
   // Render user-added tags first
   userTags.forEach((tag, idx) => {
@@ -417,18 +414,6 @@ function setupAddStyleTagRow() {
   input.onkeydown = (e) => { if (e.key === 'Enter') addTag() }
   input.addEventListener('input', validateInput)
   validateInput()
-}
-window.renderStyleTags = renderStyleTags
-window.setupAddStyleTagRow = setupAddStyleTagRow
-// Ensure style tags render after DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    renderStyleTags()
-    setupAddStyleTagRow()
-  })
-} else {
-  renderStyleTags()
-  setupAddStyleTagRow()
 }
 
 // Timeline state
@@ -532,10 +517,7 @@ async function saveSketchForAccount(isPublic = false) {
       })
     })
 
-    if (!response.ok) {
-      throw new Error('Failed to save sketch')
-    }
-
+    if (!response.ok) throw new Error('Failed to save sketch')
     alert('Sketch saved successfully!')
     loadAccountSketches()
   } catch (error) {
@@ -598,7 +580,7 @@ function createSketchCard(sk, userId) {
     toggleBtn.title = sk.isPublic ? 'Set Private' : 'Set Public'
   }
   updateToggleIcon()
-  toggleBtn.onclick = async function(e) {
+  toggleBtn.onclick = async function (e) {
     e.stopPropagation()
     toggleBtn.style.pointerEvents = 'none'
     await toggleSketchPublic(userId, sk.sketchId, !sk.isPublic, (success) => {
@@ -610,20 +592,21 @@ function createSketchCard(sk, userId) {
       }
     })
   }
+
   // Info icon for meta popup
   const infoIcon = card.querySelector('.info-action')
   infoIcon.innerHTML = 'ℹ️'
-  infoIcon.onclick = infoIcon.onmouseenter = function(e) {
+  infoIcon.onclick = infoIcon.onmouseenter = function (e) {
     e.stopPropagation()
     showSketchMetaPopup(sk, infoIcon)
   }
-  infoIcon.onmouseleave = function() {
+  infoIcon.onmouseleave = function () {
     hideSketchMetaPopup()
   }
   // Delete button
   const delBtn = card.querySelector('.delete-action')
   delBtn.innerHTML = '🗑️'
-  delBtn.onclick = async function(e) {
+  delBtn.onclick = async function (e) {
     e.stopPropagation()
     if (confirm('Are you sure you want to delete this sketch? This cannot be undone.')) {
       await deleteSketch(userId, sk.sketchId)
@@ -634,7 +617,7 @@ function createSketchCard(sk, userId) {
 }
 
 // Patch loadAccountSketches to use the template from index.html
-loadAccountSketches = async function() {
+loadAccountSketches = async function () {
   const authHeader = localStorage.getItem('githubToken')
   let userId
   try {
@@ -707,13 +690,6 @@ async function loadPublicSketches() {
   }
 }
 
-// Load public sketches on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadPublicSketches)
-} else {
-  loadPublicSketches()
-}
-
 function setupCanvasEvents() {
   // Set up touch events for mobile
   canvas.addEventListener('touchstart', e => {
@@ -781,13 +757,6 @@ function initializeApp() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeApp)
 else initializeApp()
 
-window.aiAssist = aiAssist
-window.clearCanvas = clearCanvas
-window.downloadCanvas = downloadCanvas
-window.loginWithGitHub = loginWithGitHub
-window.saveToTimeline = saveToTimeline
-window.saveSketchForAccount = saveSketchForAccount
-
 function updateButtonStates() {
   const isCanvasEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)
 
@@ -813,9 +782,7 @@ updateButtonStates()
 
 // Hide all open sketch meta popups
 function hideSketchMetaPopup() {
-  document.querySelectorAll('.sketch-meta-popup').forEach(popup => {
-    popup.remove()
-  })
+  document.querySelectorAll('.sketch-meta-popup').forEach(popup => { popup.remove() })
 }
 
 // Show sketch metadata popup (info icon)
@@ -852,4 +819,39 @@ function showSketchMetaPopup(sketch, anchorEl) {
   document.addEventListener('mousedown', onDocClick)
   document.addEventListener('touchstart', onDocClick)
   document.body.appendChild(popup)
+}
+
+// Description field setup
+function setupDescriptionField() {
+  const input = document.getElementById('description-input')
+  if (!input) return
+  // Load from localStorage
+  input.value = localStorage.getItem('aiDescription') || ''
+  // Save on input
+  input.addEventListener('input', () => {
+    localStorage.setItem('aiDescription', input.value)
+  })
+}
+
+window.aiAssist = aiAssist
+window.clearCanvas = clearCanvas
+window.downloadCanvas = downloadCanvas
+window.loginWithGitHub = loginWithGitHub
+window.logout = logout
+window.renderStyleTags = renderStyleTags
+window.saveSketchForAccount = saveSketchForAccount
+window.saveToTimeline = saveToTimeline
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPublicSketches()
+    renderStyleTags()
+    setupAddStyleTagRow()
+    setupDescriptionField()
+  })
+} else {
+  loadPublicSketches()
+  renderStyleTags()
+  setupAddStyleTagRow()
+  setupDescriptionField()
 }
