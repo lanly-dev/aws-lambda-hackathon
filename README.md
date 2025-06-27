@@ -10,12 +10,8 @@ This project is a serverless sketch application with AI assist, built using AWS 
 
 ## Endpoints
 - `GET /` - Main app (HTML)
-- `GET /sketches` - List all sketches
-- `POST /sketches` - Save a new sketch
 - `POST /ai-assist` - Send a sketch to AI and get a new image (mocked)
 - `POST /auth/github` - Exchange GitHub OAuth code for access token (backend)
-
----
 
 ## How to Run Locally
 1. **Install dependencies:**

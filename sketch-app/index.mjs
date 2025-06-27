@@ -26,21 +26,4 @@ export const handler = async (event) => {
       body: readFileSync(new URL('./ui/script.js', import.meta.url), 'utf8')
     }
   }
-  if (path === '/sketches') {
-    if (httpMethod === 'GET') return response(200, Array.from(sketches.values()))
-    if (httpMethod === 'POST') {
-      const data = JSON.parse(body)
-      const id = Date.now().toString()
-      sketches.set(id, { id, ...data })
-      return response(201, { id, message: 'Sketch saved!' })
-    }
-  }
-  if (path.startsWith('/sketches/')) {
-    const id = path.split('/')[2]
-    if (httpMethod === 'GET') return sketches.has(id) ? response(200, sketches.get(id)) : response(404, { error: 'Not found' })
-    if (httpMethod === 'DELETE') {
-      sketches.delete(id)
-      return response(200, { message: 'Deleted' })
-    }
-  }
 }

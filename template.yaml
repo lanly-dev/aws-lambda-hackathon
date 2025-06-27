@@ -3,11 +3,8 @@ Transform: AWS::Serverless-2016-10-31
 
 Globals:
   Function:
-    Timeout: 30
-    MemorySize: 512
     Runtime: nodejs22.x
-    Architectures:
-      - x86_64
+    Timeout: 30
 
 Resources:
   SketchApp:
@@ -15,12 +12,7 @@ Resources:
     Properties:
       CodeUri: sketch-app/
       Handler: index.handler
-      Environment:
-        Variables:
-          SKETCH_TABLE: !Ref SketchTable
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SketchTable
+      MemorySize: 8
       Events:
         SketchApi:
           Type: Api
@@ -39,8 +31,7 @@ Resources:
       CodeUri: ./ai-assist/
       Handler: index.handler
       Runtime: nodejs22.x
-      MemorySize: 512
-      Timeout: 30
+      MemorySize: 64
       Environment:
         Variables:
           AI_MODE: dev
@@ -57,8 +48,7 @@ Resources:
       CodeUri: ./sketch-utils/
       Handler: index.handler
       Runtime: nodejs22.x
-      MemorySize: 512
-      Timeout: 30
+      MemorySize: 128
       Environment:
         Variables:
           SKETCHES_TABLE: !Ref SketchTable
