@@ -301,6 +301,9 @@ async function aiAssist() {
     img.src = `data:image/png;base64,${style.image}`
     img.width = 160
     img.title = style.name
+    // Store metadata in data attributes
+    img.dataset.description = description || ''
+    img.dataset.styleTags = JSON.stringify(styleTags || [])
     img.onclick = () => {
       Array.from(optionsDiv.querySelectorAll('img')).forEach(im => im.classList.remove('selected'))
       img.classList.add('selected')
@@ -321,8 +324,7 @@ if (!document.getElementById('ai-spinner-style')) {
   style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
   document.head.appendChild(style)
 }
-
-// --- AI Assist Style Tags System ---
+// Default style tags
 const DEFAULT_TAGS = [
   'Cartoon', 'Pencil', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'
 ]
@@ -335,6 +337,7 @@ function getUserStyleTags() {
 function setUserStyleTags(tags) {
   localStorage.setItem('userStyleTags', JSON.stringify(tags))
 }
+
 function renderStyleTags() {
   const tagContainer = document.getElementById('style-tags')
   if (!tagContainer) return
@@ -519,6 +522,20 @@ async function saveSketchForAccount(isPublic = false) {
     }
   }
 
+  // --- Retrieve description and styleTags from selected AI Assist image if present ---
+  let description = ''
+  let styleTags = []
+  const aiOptionsDiv = document.getElementById('ai-options')
+  if (aiOptionsDiv) {
+    const selectedImg = aiOptionsDiv.querySelector('img.selected')
+    if (selectedImg) {
+      description = selectedImg.dataset.description || ''
+      try {
+        styleTags = JSON.parse(selectedImg.dataset.styleTags || '[]')
+      } catch { styleTags = [] }
+    }
+  }
+
   // Generate a unique sketchId (timestamp + random)
   const sketchId = 'sketch-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
@@ -534,7 +551,9 @@ async function saveSketchForAccount(isPublic = false) {
         username,
         sketchId,
         sketch: sketchData,
-        isPublic: isPublic ? 1 : 0
+        isPublic: isPublic ? 1 : 0,
+        description,
+        styleTags
       })
     })
 
@@ -871,14 +890,15 @@ function showSketchMetaPopup(sketch, anchorEl) {
   popup.className = 'sketch-meta-popup'
   // Format metadata
   const created = sketch.createdAt ? new Date(sketch.createdAt).toLocaleString() : 'Unknown'
-  const updated = sketch.updatedAt ? new Date(sketch.updatedAt).toLocaleString() : null
+  const description = sketch.description
+  const styleTags = sketch.styleTags.join(', ')
   popup.innerHTML = `
     <b>Sketch ID:</b> <span style="word-break:break-all">${sketch.sketchId}</span><br>
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
     <b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>
+    <b>description:</b> ${description ?? ''}<br>
+    <b>Style Tags:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
-    ${updated ? `<b>Updated:</b> ${updated}<br>` : ''}
-    ${sketch.styleTags ? `<b>Tags:</b> ${sketch.styleTags.map(t => `<span style='margin-right:4px;'>${t}</span>`).join('')}` : ''}
   `
   // Position popup below the anchor element
   const rect = anchorEl.getBoundingClientRect()

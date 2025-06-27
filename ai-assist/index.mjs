@@ -4,7 +4,7 @@ import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamo = new DynamoDBClient({})
 const DEMO_LIMIT = 3
-const AUTH_LIMIT = 30
+const AUTH_LIMIT = 10
 const DEMO_TTL_HOURS = 5 / 60 // 5 minutes in hours
 const AUTH_TTL_HOURS = 5 / 60 // 5 minutes in hours
 
@@ -177,7 +177,8 @@ export const handler = async (event) => {
         }
         const githubUser = await response.json()
         console.log('Authenticated user:', githubUser.login)
-        // Authenticated users get 30 requests per 5 minutes
+
+        // Authenticated users get 10 requests per 5 minutes
         const authUsage = await getAuthUsage(githubUser.id)
         if (authUsage >= AUTH_LIMIT) {
           return { statusCode: 429, headers: cors, body: JSON.stringify({ error: 'Authenticated usage limit exceeded (30 per 5 min)' }) }
