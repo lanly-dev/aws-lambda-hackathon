@@ -23,7 +23,7 @@ export const saveSketchHandler = async (event) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
   try {
-    const { userId, sketch, username, styleTags, model, isPublic } = JSON.parse(event.body)
+    const { userId, sketch, username, userAvatar, styleTags, model, isPublic } = JSON.parse(event.body)
     const authHeader = event.headers?.Authorization || event.headers?.authorization
 
     if (!authHeader) {
@@ -49,6 +49,7 @@ export const saveSketchHandler = async (event) => {
     const metadataItem = {
       userId,
       username,
+      userAvatar,
       sketchId,
       styleTags: styleTags || [],
       model,
@@ -275,7 +276,8 @@ export const getPublicSketchesHandler = async (event) => {
               sketch: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
               createdAt: new Date().toISOString(),
               isPublic: 1,
-              username: 'demo-user'
+              username: 'demo-user',
+              userAvatar: 'https://example.com/avatar.png'
             }
           ]
         })

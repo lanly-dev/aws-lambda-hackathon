@@ -498,10 +498,12 @@ async function saveSketchForAccount(isPublic = false) {
   const authHeader = localStorage.getItem('githubToken')
   let userId
   let username
+  let userAvatar
   try {
-    const { id, login } = getCurrentUserObject()
+    const { id, login, avatar_url } = getCurrentUserObject()
     userId = id
     username = login
+    userAvatar = avatar_url
   } catch (e) {
     console.error('Error getting user info:', e.message)
     return
@@ -549,6 +551,7 @@ async function saveSketchForAccount(isPublic = false) {
       body: JSON.stringify({
         userId,
         username,
+        userAvatar,
         sketchId,
         sketch: sketchData,
         isPublic: isPublic ? 1 : 0,
