@@ -60,7 +60,7 @@ async function exchangeCodeForToken(code) {
     loginButton.disabled = false
     errorDiv.textContent = ''
   } catch (error) {
-    console.error('Authentication error:', error)
+    console.error('Authentication error:', error.message)
     loginButton.innerHTML = '🔗 Login with GitHub'
     loginButton.disabled = false
     errorDiv.textContent = 'Authentication failed. Please try again.'
@@ -257,6 +257,8 @@ function downloadCanvas() {
 async function aiAssist() {
   clearStatus()
   fillCanvasWhiteBg()
+  // Take a snapshot before running AI Assist
+  addToTimeline(canvas.toDataURL('image/png'))
   if (aiAssistCooldown) {
     document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
     return
@@ -289,7 +291,7 @@ async function aiAssist() {
   const res = await fetch('/ai-assist', {
     method: 'POST',
     headers,
-    body: JSON.stringify({ image: data, model, styleCount, description, styleTags  })
+    body: JSON.stringify({ image: data, model, styleCount, description, styleTags })
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')
@@ -474,6 +476,11 @@ function saveToTimeline() {
   clearStatus()
   fillCanvasWhiteBg()
   const data = canvas.toDataURL('image/png')
+  // Prevent duplicate snapshot in timeline
+  if (timelineState.some(item => item.image === data)) {
+    document.getElementById('status').textContent = 'This sketch is already in the timeline.'
+    return
+  }
   addToTimeline(data)
 }
 
@@ -499,6 +506,17 @@ async function saveSketchForAccount(isPublic = false) {
   if (!authHeader || !userId) {
     alert('You must be logged in to save sketches')
     return
+  }
+
+  // Prevent duplicate save: check if sketch already exists in saved sketches
+  const sketchesDiv = document.getElementById('sketches')
+  if (sketchesDiv) {
+    const imgs = sketchesDiv.querySelectorAll('img.sketch-img')
+    for (const img of imgs) {
+      if (img.src !== sketchData) continue
+      document.getElementById('status').textContent = 'This sketch is already saved.'
+      return
+    }
   }
 
   // Generate a unique sketchId (timestamp + random)
