@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamo = new DynamoDBClient({})
 
@@ -12,6 +12,7 @@ export const handler = async (event) => {
   else if (method === 'GET' && path && path.includes('get-sketches')) return getSketchesHandler(event)
   else if (method === 'POST' && path && path.includes('set-sketch-public')) return setSketchPublicHandler(event)
   else if (method === 'GET' && path && path.includes('public-sketches')) return getPublicSketchesHandler(event)
+  else if (method === 'POST' && path && path.includes('delete-sketch')) return deleteSketchHandler(event)
   else return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) }
 }
 
@@ -307,6 +308,72 @@ export const getPublicSketchesHandler = async (event) => {
     }
   } catch (error) {
     console.error('Error retrieving public sketches:', error)
+    return {
+      statusCode: 500,
+      headers: cors,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    }
+  }
+}
+
+// Handler to delete a sketch and its parts
+export const deleteSketchHandler = async (event) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
+  try {
+    let body
+    try {
+      body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
+    } catch (e) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Invalid JSON' })
+      }
+    }
+    const { userId, sketchId } = body
+    const authHeader = event.headers?.Authorization || event.headers?.authorization
+    if (!authHeader) {
+      return {
+        statusCode: 401,
+        headers: cors,
+        body: JSON.stringify({ error: 'Unauthorized: Missing Authorization header' })
+      }
+    }
+    if (!userId || !sketchId) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Missing userId or sketchId' })
+      }
+    }
+    // Delete metadata from SKETCHES_TABLE
+    await dynamo.send(new DeleteCommand({
+      TableName: process.env.SKETCHES_TABLE,
+      Key: { userId, sketchId }
+    }))
+    // Delete all parts from SKETCH_PARTS_TABLE
+    const partsResult = await dynamo.send(new QueryCommand({
+      TableName: process.env.SKETCH_PARTS_TABLE,
+      KeyConditionExpression: 'sketchId = :sid',
+      ExpressionAttributeValues: { ':sid': sketchId }
+    }))
+    const parts = partsResult.Items || []
+    for (const part of parts) {
+      await dynamo.send(new DeleteCommand({
+        TableName: process.env.SKETCH_PARTS_TABLE,
+        Key: { sketchId, partNumber: part.partNumber }
+      }))
+    }
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ message: 'Sketch deleted successfully' })
+    }
+  } catch (error) {
+    console.error('Error deleting sketch:', error)
     return {
       statusCode: 500,
       headers: cors,

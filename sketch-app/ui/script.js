@@ -899,3 +899,29 @@ if (document.readyState === 'loading') {
 if (document.getElementById('refresh-sketches-btn')) {
   document.getElementById('refresh-sketches-btn').onclick = () => loadAccountSketches()
 }
+
+// Delete a sketch for the current user
+async function deleteSketch(userId, sketchId) {
+  const authHeader = localStorage.getItem('githubToken')
+  if (!authHeader) {
+    alert('You must be logged in to delete sketches')
+    return
+  }
+  try {
+    const response = await fetch('/delete-sketch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authHeader}`
+      },
+      body: JSON.stringify({ userId, sketchId })
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'Failed to delete sketch')
+    }
+    // Success: handled by caller (refreshes list)
+  } catch (error) {
+    alert('Error deleting sketch: ' + error.message)
+  }
+}

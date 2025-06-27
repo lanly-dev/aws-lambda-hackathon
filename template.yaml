@@ -12,7 +12,7 @@ Resources:
     Properties:
       CodeUri: sketch-app/
       Handler: index.handler
-      MemorySize: 8
+      MemorySize: 16
       Events:
         SketchApi:
           Type: Api
@@ -80,6 +80,11 @@ Resources:
           Properties:
             Path: /public-sketches
             Method: GET
+        DeleteSketchApi:
+          Type: Api
+          Properties:
+            Path: /delete-sketch
+            Method: POST
 
   SketchTable:
     Type: AWS::DynamoDB::Table
