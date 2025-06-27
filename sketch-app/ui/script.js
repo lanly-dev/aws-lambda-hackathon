@@ -635,12 +635,9 @@ function createSketchCard(sk, userId) {
   // Info icon for meta popup
   const infoIcon = card.querySelector('.info-action')
   infoIcon.innerHTML = 'ℹ️'
-  infoIcon.onclick = infoIcon.onmouseenter = function (e) {
+  infoIcon.onclick = function (e) {
     e.stopPropagation()
     showSketchMetaPopup(sk, infoIcon)
-  }
-  infoIcon.onmouseleave = function () {
-    hideSketchMetaPopup()
   }
   // Delete button
   const delBtn = card.querySelector('.delete-action')
@@ -891,12 +888,12 @@ function showSketchMetaPopup(sketch, anchorEl) {
   // Format metadata
   const created = sketch.createdAt ? new Date(sketch.createdAt).toLocaleString() : 'Unknown'
   const description = sketch.description
-  const styleTags = sketch.styleTags.join(', ')
+  const styleTags = sketch.styleTags && sketch.styleTags.length ? sketch.styleTags.join(', ') : ''
   popup.innerHTML = `
     <b>Sketch ID:</b> <span style="word-break:break-all">${sketch.sketchId}</span><br>
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
     <b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>
-    <b>description:</b> ${description ?? ''}<br>
+    <b>Description:</b> ${description ?? ''}<br>
     <b>Style Tags:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
   `
