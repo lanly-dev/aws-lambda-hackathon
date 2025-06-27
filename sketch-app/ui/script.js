@@ -587,7 +587,7 @@ function createSketchCard(sk, userId) {
   }
   // Border color for public indicator
   function updateBorder() {
-    img.style.border = sk.isPublic ? '2.5px solid #28a745' : '1.5px solid #e6edff'
+    img.style.border = '1.5px solid #e6edff'
   }
   updateBorder()
   // Toggle public/private icon
