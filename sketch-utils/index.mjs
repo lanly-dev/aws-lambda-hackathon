@@ -288,10 +288,22 @@ export const getPublicSketchesHandler = async (event) => {
       ExpressionAttributeValues: { ':pub': 1 },
       Limit: 50 // Limit to 50 public sketches
     }))
+    const sketches = result.Items || []
+    // For each sketch, reconstruct the base64 image from parts
+    for (const sketch of sketches) {
+      const partsResult = await dynamo.send(new QueryCommand({
+        TableName: process.env.SKETCH_PARTS_TABLE,
+        KeyConditionExpression: 'sketchId = :sid',
+        ExpressionAttributeValues: { ':sid': sketch.sketchId }
+      }))
+      const parts = partsResult.Items || []
+      parts.sort((a, b) => a.partNumber - b.partNumber)
+      sketch.sketch = parts.map(part => part.data).join('')
+    }
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ sketches: result.Items || [] })
+      body: JSON.stringify({ sketches })
     }
   } catch (error) {
     console.error('Error retrieving public sketches:', error)
