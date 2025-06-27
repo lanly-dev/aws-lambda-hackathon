@@ -560,6 +560,10 @@
       #sketches img {
         max-width: 60px;
       }
+
+      .sketch-action-icon {
+        font-size: small;
+      }
     }
 
     /* Public Sketches Section */
@@ -619,6 +623,125 @@
       max-width: 320px;
       box-shadow: 0 1px 4px #bfcfff22;
     }
+
+    .sketch-img-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .sketch-img {
+      transition: border 0.18s;
+    }
+
+    .sketch-action-icon {
+      width: 1em;
+      cursor: pointer;
+      z-index: 2;
+      border-radius: 8px;
+    }
+
+    .sketch-action-icon:focus,
+    .sketch-action-icon:hover {
+      background: #e6edff;
+    }
+
+    .toggle-public-action[aria-checked="true"] {
+      color: #28a745;
+    }
+
+    .toggle-public-action[aria-checked="false"] {
+      color: #bfcfff;
+    }
+
+    .delete-action:focus,
+    .delete-action:hover {
+      background: #ffeaea;
+    }
+
+    .info-action:focus,
+    .info-action:hover {
+      background: #e6edff;
+    }
+
+    .sketch-meta-popup {
+      position: absolute;
+      left: 0;
+      top: 32px;
+      background: #fff;
+      border: 1px solid #bfcfff;
+      border-radius: 7px;
+      padding: 8px 14px;
+      box-shadow: 0 2px 8px #bfcfff33;
+      font-size: 0.97rem;
+      z-index: 10;
+      min-width: 180px;
+      max-width: 260px;
+      pointer-events: none;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .sketch-meta-popup {
+        pointer-events: auto;
+      }
+    }
+
+    .style-tags-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+
+    #new-style-tag-input {
+      flex: 1;
+      min-width: 0;
+      padding: 4px 8px;
+      border-radius: 5px;
+      border: 1.5px solid #bfcfff;
+      font-size: 0.97rem;
+    }
+
+    #add-style-tag-btn {
+      padding: 4px 12px;
+      border-radius: 5px;
+      background: #e6edff;
+      color: #2d3a5a;
+      border: none;
+      font-size: 0.97rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 3px #0001;
+    }
+
+    /* Sketch card template styles */
+    .sketch-card {
+      display: inline-block;
+      position: relative;
+      margin: 0 8px 8px 0;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .sketch-img-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .sketch-img {
+      display: block;
+      margin: 0 auto 4px auto;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px #0001;
+    }
+
+    .sketch-actions-container {
+      color: #555;
+      position: absolute;
+      top: -3px;
+      right: 0;
+      padding: 5px;
+    }
   </style>
 </head>
 
@@ -673,18 +796,18 @@
             </span>
           </label>
           <select id="model-select" class="ai-dropdown">
-          <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
-          <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1</option>
-          <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)
-          </option>
+            <option value="amazon.titan-image-generator-v2:0">Titan Image Generator</option>
+            <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large V1</option>
+            <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)
+            </option>
           </select>
         </div>
       </div>
       <div class="style-tags-section">
         <div class="style-tags-label">Style Tags:</div>
-        <div style="display: flex; gap: 6px; margin-top: 6px; margin-bottom: 6px;">
-          <input id="new-style-tag-input" type="text" maxlength="24" placeholder="Add style tag..." style="flex:1; min-width:0; padding:4px 8px; border-radius:5px; border:1.5px solid #bfcfff; font-size:0.97rem;" />
-          <button id="add-style-tag-btn" type="button" style="padding:4px 12px; border-radius:5px; background:#e6edff; color:#2d3a5a; border:none; font-size:0.97rem; font-weight:500; cursor:pointer; box-shadow:0 1px 3px #0001;">Add</button>
+        <div class="style-tags-row">
+          <input id="new-style-tag-input" type="text" maxlength="24" placeholder="Add style tag..." />
+          <button id="add-style-tag-btn" type="button">Add</button>
         </div>
         <div id="style-tags"></div>
       </div>
@@ -692,11 +815,17 @@
       <h2>Saved Sketches</h2>
       <div id="sketches"></div>
       <template id="sketch-card-template">
-        <div class="sketch-card" style="display:inline-block;position:relative;margin:0 8px 8px 0;text-align:center;vertical-align:top;">
-          <img src="" width="120" title="" style="display:block;margin:0 auto 4px auto;cursor:pointer;border-radius:8px;box-shadow:0 1px 4px #0001;">
-          <button class="publish-btn" style="display:block;margin:4px auto 0 auto;font-size:0.85rem;padding:2px 8px;" data-sketchid="" data-public="0">Publish</button>
-          <span class="published-indicator" style="display:none;font-size:0.8rem;color:#28a745;text-align:center;margin-top:2px;">🌍 Published</span>
-        </div>
+        <div class="sketch-card">
+          <div class="sketch-img-container">
+            <img src="" width="120" title="" class="sketch-img">
+            <div class="sketch-actions-container">
+              <span class="sketch-action-icon toggle-public-action" title="Toggle public/private" tabindex="0"
+                aria-label="Toggle public/private"></span>
+              <span class="sketch-action-icon info-action" title="Show info" tabindex="0" aria-label="Show info"></span>
+              <span class="sketch-action-icon delete-action" title="Delete sketch" tabindex="0"
+                aria-label="Delete sketch"></span>
+            </div>
+          </div>
       </template>
       <!-- Public Sketches Section -->
       <section id="public-sketches-section">

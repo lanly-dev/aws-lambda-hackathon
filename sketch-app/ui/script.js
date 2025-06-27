@@ -576,7 +576,7 @@ function createSketchCard(sk, userId) {
   if (!template) return null
   const node = template.content.cloneNode(true)
   const card = node.querySelector('.sketch-card')
-  const img = card.querySelector('img')
+  const img = card.querySelector('.sketch-img')
   img.src = sk.sketch
   img.width = 120
   img.title = sk.sketchId
@@ -585,27 +585,50 @@ function createSketchCard(sk, userId) {
     i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
     i.src = sk.sketch
   }
-  const pubBtn = card.querySelector('.publish-btn')
-  pubBtn.textContent = sk.isPublic ? 'Unpublish' : 'Publish'
-  pubBtn.setAttribute('data-sketchid', sk.sketchId)
-  pubBtn.setAttribute('data-public', sk.isPublic ? '1' : '0')
-  pubBtn.onclick = async function() {
-    pubBtn.disabled = true
-    pubBtn.textContent = 'Updating...'
+  // Border color for public indicator
+  function updateBorder() {
+    img.style.border = sk.isPublic ? '2.5px solid #28a745' : '1.5px solid #e6edff'
+  }
+  updateBorder()
+  // Toggle public/private icon
+  const toggleBtn = card.querySelector('.toggle-public-action')
+  function updateToggleIcon() {
+    toggleBtn.innerHTML = sk.isPublic ? '🌍' : '🔒'
+    toggleBtn.setAttribute('aria-checked', sk.isPublic ? 'true' : 'false')
+    toggleBtn.title = sk.isPublic ? 'Set Private' : 'Set Public'
+  }
+  updateToggleIcon()
+  toggleBtn.onclick = async function(e) {
+    e.stopPropagation()
+    toggleBtn.style.pointerEvents = 'none'
     await toggleSketchPublic(userId, sk.sketchId, !sk.isPublic, (success) => {
-      pubBtn.disabled = false
+      toggleBtn.style.pointerEvents = ''
       if (success) {
-        loadAccountSketches()
-      } else {
-        pubBtn.textContent = sk.isPublic ? 'Unpublish' : 'Publish'
+        sk.isPublic = !sk.isPublic
+        updateBorder()
+        updateToggleIcon()
       }
     })
   }
-  const pubMark = card.querySelector('.published-indicator')
-  if (sk.isPublic) {
-    pubMark.style.display = 'block'
-  } else {
-    pubMark.style.display = 'none'
+  // Info icon for meta popup
+  const infoIcon = card.querySelector('.info-action')
+  infoIcon.innerHTML = 'ℹ️'
+  infoIcon.onclick = infoIcon.onmouseenter = function(e) {
+    e.stopPropagation()
+    showSketchMetaPopup(sk, infoIcon)
+  }
+  infoIcon.onmouseleave = function() {
+    hideSketchMetaPopup()
+  }
+  // Delete button
+  const delBtn = card.querySelector('.delete-action')
+  delBtn.innerHTML = '🗑️'
+  delBtn.onclick = async function(e) {
+    e.stopPropagation()
+    if (confirm('Are you sure you want to delete this sketch? This cannot be undone.')) {
+      await deleteSketch(userId, sk.sketchId)
+      loadAccountSketches()
+    }
   }
   return node
 }
@@ -787,3 +810,46 @@ canvas.addEventListener('touchend', updateButtonStates)
 
 // Initial state update
 updateButtonStates()
+
+// Hide all open sketch meta popups
+function hideSketchMetaPopup() {
+  document.querySelectorAll('.sketch-meta-popup').forEach(popup => {
+    popup.remove()
+  })
+}
+
+// Show sketch metadata popup (info icon)
+function showSketchMetaPopup(sketch, anchorEl) {
+  hideSketchMetaPopup()
+  // Create popup
+  const popup = document.createElement('div')
+  popup.className = 'sketch-meta-popup'
+  // Format metadata
+  const created = sketch.createdAt ? new Date(sketch.createdAt).toLocaleString() : 'Unknown'
+  const updated = sketch.updatedAt ? new Date(sketch.updatedAt).toLocaleString() : null
+  popup.innerHTML = `
+    <b>Sketch ID:</b> <span style="word-break:break-all">${sketch.sketchId}</span><br>
+    <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
+    <b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>
+    <b>Created:</b> ${created}<br>
+    ${updated ? `<b>Updated:</b> ${updated}<br>` : ''}
+    ${sketch.styleTags ? `<b>Tags:</b> ${sketch.styleTags.map(t => `<span style='margin-right:4px;'>${t}</span>`).join('')}` : ''}
+  `
+  // Position popup below the anchor element
+  const rect = anchorEl.getBoundingClientRect()
+  popup.style.position = 'fixed'
+  popup.style.left = `${rect.left}px`
+  popup.style.top = `${rect.bottom + 4}px`
+  popup.style.pointerEvents = 'auto'
+  // Dismiss on click outside (mobile)
+  function onDocClick(e) {
+    if (!popup.contains(e.target) && e.target !== anchorEl) {
+      hideSketchMetaPopup()
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('touchstart', onDocClick)
+    }
+  }
+  document.addEventListener('mousedown', onDocClick)
+  document.addEventListener('touchstart', onDocClick)
+  document.body.appendChild(popup)
+}
