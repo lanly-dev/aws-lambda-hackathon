@@ -755,6 +755,39 @@
       margin-left: 2px;
       margin-right: 2px;
     }
+
+    #style-tag-limit-msg {
+      color: red;
+      font-weight: normal;
+    }
+
+    /* --- Shake animation for style tag limit feedback --- */
+    #style-tags.shake {
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      10%,
+      90% {
+        transform: translateX(-2px);
+      }
+
+      20%,
+      80% {
+        transform: translateX(4px);
+      }
+
+      30%,
+      50%,
+      70% {
+        transform: translateX(-8px);
+      }
+
+      40%,
+      60% {
+        transform: translateX(8px);
+      }
+    }
   </style>
 </head>
 
@@ -826,7 +859,9 @@
           class="description-input" />
       </div>
       <div class="style-tags-section">
-        <div class="style-tags-label">Style Tags:</div>
+        <div class="style-tags-label">Style Tags:
+          <span id="style-tag-limit-msg"></span>
+        </div>
         <div class="style-tags-row">
           <input id="new-style-tag-input" type="text" maxlength="20" placeholder="Add a new style tag..." />
           <button id="add-style-tag-btn" type="button">Add</button>

@@ -347,6 +347,29 @@ function renderStyleTags() {
   tagContainer.innerHTML = ''
   const selected = new Set(JSON.parse(localStorage.getItem('aiStyleTags') || '[]'))
   const userTags = getUserStyleTags()
+  const MAX_TAGS = 5
+  const limitMsg = document.getElementById('style-tag-limit-msg')
+  if (limitMsg) {
+    limitMsg.textContent = '' // Always clear by default
+  }
+  let limitMsgTimeout = null
+  function handleTagClick(tag) {
+    if (selected.has(tag)) {
+      selected.delete(tag)
+    } else {
+      if (selected.size >= MAX_TAGS) {
+        tagContainer.classList.add('shake')
+        if (limitMsg) limitMsg.textContent = `Max ${MAX_TAGS} tags selected`
+        clearTimeout(limitMsgTimeout)
+        limitMsgTimeout = setTimeout(() => { if (limitMsg) limitMsg.textContent = '' }, 1800)
+        setTimeout(() => tagContainer.classList.remove('shake'), 400)
+        return
+      }
+      selected.add(tag)
+    }
+    localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
+    renderStyleTags()
+  }
   // Render user-added tags first
   userTags.forEach((tag, idx) => {
     const btn = document.createElement('button')
@@ -354,11 +377,7 @@ function renderStyleTags() {
     btn.type = 'button'
     btn.className = 'user-style-tag-btn'
     if (selected.has(tag)) btn.classList.add('selected')
-    btn.onclick = () => {
-      if (selected.has(tag)) selected.delete(tag); else selected.add(tag)
-      localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
-      renderStyleTags()
-    }
+    btn.onclick = () => handleTagClick(tag)
     // Add remove button
     const removeBtn = document.createElement('span')
     removeBtn.className = 'remove-style-tag-btn'
@@ -383,11 +402,7 @@ function renderStyleTags() {
     btn.type = 'button'
     btn.className = 'user-style-tag-btn'
     if (selected.has(tag)) btn.classList.add('selected')
-    btn.onclick = () => {
-      if (selected.has(tag)) selected.delete(tag); else selected.add(tag)
-      localStorage.setItem('aiStyleTags', JSON.stringify([...selected]))
-      renderStyleTags()
-    }
+    btn.onclick = () => handleTagClick(tag)
     tagContainer.appendChild(btn)
   })
 }
@@ -962,7 +977,7 @@ function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
     ${isPrivate ? (`<b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>`) : '' }
     <b>Description:</b> ${description ?? ''}<br>
-    <b>Style Tags:</b> ${styleTags}<br>
+    <b>Styles:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
   `
   // Smart positioning: try to keep popup in viewport
@@ -977,7 +992,7 @@ function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
   }
   // Adjust if popup would overflow bottom edge
   if (top + popupHeight > window.innerHeight - 8) {
-    top = rect.top - popupHeight + 70
+    top = rect.top - popupHeight + 80
     if (top < 8) top = 8
   }
   if (left < 8) left = 8
