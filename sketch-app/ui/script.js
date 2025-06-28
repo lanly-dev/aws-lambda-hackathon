@@ -936,17 +936,21 @@ else initializeApp()
 
 function updateButtonStates() {
   const isCanvasEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)
-
+  const aiAssistBtn = document.querySelector('button[onclick="aiAssist()"]')
+  const descriptionInput = document.getElementById('description-input')
+  // AI Assist button requires both non-empty canvas and non-empty description
+  if (aiAssistBtn) {
+    aiAssistBtn.disabled = isCanvasEmpty || !(descriptionInput && descriptionInput.value.trim())
+  }
   const buttonsToDisable = [
-    document.querySelector('button[onclick="aiAssist()"]'),
+    aiAssistBtn,
     document.querySelector('button[onclick="clearCanvas()"]'),
     document.querySelector('button[onclick="downloadCanvas()"]'),
     document.querySelector('button[onclick="saveSketchForAccount()"]'),
     document.querySelector('button[onclick="saveToTimeline()"]')
   ]
-
   buttonsToDisable.forEach(button => {
-    if (button) button.disabled = isCanvasEmpty
+    if (button && button !== aiAssistBtn) button.disabled = isCanvasEmpty
   })
 }
 
@@ -1016,15 +1020,20 @@ function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
 // Description field setup
 function setupDescriptionField() {
   const input = document.getElementById('description-input')
+  const aiAssistBtn = document.querySelector('button[onclick="aiAssist()"]')
   if (!input) return
   // Load from localStorage
   input.value = localStorage.getItem('aiDescription') || ''
-  // Save on input
+  // Set initial state for AI Assist button
+  if (aiAssistBtn) aiAssistBtn.disabled = !input.value.trim() || !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)
+  // Save on input and enable/disable AI Assist button
   input.addEventListener('input', () => {
     localStorage.setItem('aiDescription', input.value)
+    updateButtonStates()
   })
 }
 
+// Global functions
 window.aiAssist = aiAssist
 window.clearCanvas = clearCanvas
 window.downloadCanvas = downloadCanvas
@@ -1034,6 +1043,7 @@ window.renderStyleTags = renderStyleTags
 window.saveSketchForAccount = saveSketchForAccount
 window.saveToTimeline = saveToTimeline
 
+// DOMContentLoaded event
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     loadPublicSketches()
@@ -1048,12 +1058,10 @@ if (document.readyState === 'loading') {
   setupDescriptionField()
 }
 
-// Add refresh button event
+// Refresh button events
 if (document.getElementById('refresh-sketches-btn')) {
   document.getElementById('refresh-sketches-btn').onclick = () => loadAccountSketches()
 }
-
-// Add refresh button event for public sketches
 if (document.getElementById('refresh-public-sketches-btn')) {
   document.getElementById('refresh-public-sketches-btn').onclick = () => loadPublicSketches()
 }
