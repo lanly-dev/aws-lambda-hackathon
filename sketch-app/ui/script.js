@@ -751,29 +751,20 @@ function createPublicSketchCard(sk) {
   const likeCountSpan = likeBtn.querySelector('.like-count')
   likeBtn.title = 'Like this sketch'
   likeBtn.style.cursor = 'pointer'
-  likeBtn.textContent = '❤️ '
-  if (likeCountSpan) {
-    likeCountSpan.textContent = sk.likeCount || 0
-    likeBtn.appendChild(likeCountSpan)
-  } else {
-    const count = document.createElement('span')
-    count.className = 'like-count'
-    count.textContent = sk.likeCount || 0
-    likeBtn.appendChild(count)
-  }
+  likeCountSpan.textContent = sk.likeCount || 0
 
   // Determine if user already liked
   let alreadyLiked = false
   let userId = null
-  try {
-    const user = getCurrentUserObject()
-    userId = user && user.id
-    if (sk.likedBy && Array.isArray(sk.likedBy) && userId && sk.likedBy.includes(userId)) {
-      alreadyLiked = true
-    }
-  } catch {}
+
+  const user = getCurrentUserObject()
+  userId = user && user.id
+  if (sk.likedBy && Array.isArray(sk.likedBy) && userId && sk.likedBy.includes(userId)) {
+    alreadyLiked = true
+  }
+
   function updateLikeBtnState(liked) {
-    likeBtn.style.opacity = liked ? '0.5' : '1'
+    likeBtn.style.background = liked ? 'pink' : null
     likeBtn.title = liked ? 'Unlike this sketch' : 'Like this sketch'
   }
   updateLikeBtnState(alreadyLiked)
@@ -978,7 +969,7 @@ function showSketchMetaPopup(sketch, anchorEl) {
   }
   // Adjust if popup would overflow bottom edge
   if (top + popupHeight > window.innerHeight - 8) {
-    top = rect.top - popupHeight - 4
+    top = rect.top - popupHeight + 70
     if (top < 8) top = 8
   }
   if (left < 8) left = 8

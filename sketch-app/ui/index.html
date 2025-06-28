@@ -713,12 +713,13 @@
       box-shadow: 0 1px 4px #0001;
     }
 
-    .sketch-actions-container {
+    .sketch-actions, .public-sketch-actions {
       background: #0007;
       position: absolute;
       top: 2px;
       right: 1px;
       border-radius: 2px;
+      color: white;
     }
 
     .description-section {
@@ -836,7 +837,7 @@
         <div class="sketch-card">
           <div class="sketch-img-container">
             <img src="" width="120" title="" class="sketch-img">
-            <div class="sketch-actions-container">
+            <div class="sketch-actions">
               <span class="sketch-action-icon toggle-public-action" title="Toggle public/private" tabindex="0"
                 aria-label="Toggle public/private"></span>
               <span class="sketch-action-icon info-action" title="Show info" tabindex="0" aria-label="Show info"></span>
@@ -857,7 +858,9 @@
         <div class="public-sketch-card">
           <img src="" alt="Public Sketch" />
           <div class="public-sketch-actions">
-            <span class="sketch-action-icon like-action" title="Like this sketch" tabindex="0" aria-label="Like"></span>
+            <span class="sketch-action-icon like-action" title="Like this sketch" tabindex="0" aria-label="Like">
+              <span class="heart">❤️</span> <span class="like-count">0</span>
+            </span>
             <span class="sketch-action-icon info-action" title="Show info" tabindex="0" aria-label="Show info"></span>
           </div>
         </div>
