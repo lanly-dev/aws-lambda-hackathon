@@ -798,15 +798,20 @@ function createPublicSketchCard(sk) {
     }
   }
 
-  const infoBtn = card.querySelector('.info-action')
-  infoBtn.textContent = 'ℹ️'
-  infoBtn.title = 'Show info'
-  infoBtn.onclick = function (e) {
-    e.stopPropagation()
-    showSketchMetaPopup(sk, infoBtn)
+  // Set owner avatar in place of info icon
+  const avatarBtn = card.querySelector('.owner-avatar-action')
+  const avatarImg = avatarBtn && avatarBtn.querySelector('.owner-avatar-img')
+  if (avatarImg) {
+    avatarImg.src = sk.userAvatar || 'https://avatars.githubusercontent.com/u/583231?v=4'
+    avatarImg.alt = sk.username || 'Owner avatar'
+    avatarBtn.title = sk.username ? `Show info for ${sk.username}` : 'Show info'
+    avatarBtn.onclick = function (e) {
+      e.stopPropagation()
+      showSketchMetaPopup(sk, avatarBtn)
+    }
+    avatarBtn.onmouseenter = null
+    avatarBtn.onmouseleave = null
   }
-  infoBtn.onmouseenter = null
-  infoBtn.onmouseleave = null
 
   return node
 }

@@ -593,7 +593,6 @@
       transition: box-shadow 0.2s, border 0.2s;
       max-width: 90px !important;
       height: auto;
-      max-width: 120px;
     }
 
     .error {
@@ -713,7 +712,8 @@
       box-shadow: 0 1px 4px #0001;
     }
 
-    .sketch-actions, .public-sketch-actions {
+    .sketch-actions,
+    .public-sketch-actions {
       background: #0007;
       position: absolute;
       top: 2px;
@@ -745,6 +745,15 @@
     .description-input:focus {
       border-color: #0078d7;
       background: #fff;
+    }
+
+    .owner-avatar-img {
+      width: 1em;
+      height: 1em;
+      object-fit: cover;
+      margin-bottom: -2px;
+      margin-left: 2px;
+      margin-right: 2px;
     }
   </style>
 </head>
@@ -861,7 +870,11 @@
             <span class="sketch-action-icon like-action" title="Like this sketch" tabindex="0" aria-label="Like">
               <span class="heart">❤️</span> <span class="like-count">0</span>
             </span>
-            <span class="sketch-action-icon info-action" title="Show info" tabindex="0" aria-label="Show info"></span>
+            <!-- Owner avatar replaces info icon -->
+            <span class="sketch-action-icon owner-avatar-action info-action" title="Show info" tabindex="0"
+              aria-label="Owner avatar">
+              <img class="owner-avatar-img" src="" alt="Owner avatar" />
+            </span>
           </div>
         </div>
       </template>
