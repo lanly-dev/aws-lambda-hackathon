@@ -643,7 +643,7 @@ function createSketchCard(sk, userId) {
   infoIcon.innerHTML = 'ℹ️'
   infoIcon.onclick = function (e) {
     e.stopPropagation()
-    showSketchMetaPopup(sk, infoIcon)
+    showSketchMetaPopup(sk, infoIcon, true)
   }
   // Delete button
   const delBtn = card.querySelector('.delete-action')
@@ -948,7 +948,7 @@ function hideSketchMetaPopup() {
 }
 
 // Show sketch metadata popup (info icon) - only on click, with smart positioning
-function showSketchMetaPopup(sketch, anchorEl) {
+function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
   hideSketchMetaPopup()
   // Create popup
   const popup = document.createElement('div')
@@ -960,7 +960,7 @@ function showSketchMetaPopup(sketch, anchorEl) {
   popup.innerHTML = `
     <b>Sketch ID:</b> <span style="word-break:break-all">${sketch.sketchId}</span><br>
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
-    <b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>
+    ${isPrivate ? (`<b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>`) : '' }
     <b>Description:</b> ${description ?? ''}<br>
     <b>Style Tags:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
