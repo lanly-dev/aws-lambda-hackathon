@@ -257,8 +257,11 @@ function downloadCanvas() {
 async function aiAssist() {
   clearStatus()
   fillCanvasWhiteBg()
-  // Take a snapshot before running AI Assist
-  addToTimeline(canvas.toDataURL('image/png'))
+  // Only take a snapshot if not already in timeline
+  const currentDataUrl = canvas.toDataURL('image/png')
+  if (!timelineState.some(item => item.image === currentDataUrl)) {
+    addToTimeline(currentDataUrl)
+  }
   if (aiAssistCooldown) {
     document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
     return
