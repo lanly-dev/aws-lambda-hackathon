@@ -746,19 +746,21 @@ function createPublicSketchCard(sk) {
     i.onload = () => { clearCanvas(); ctx.drawImage(i, 0, 0); updateButtonStates() }
     i.src = sk.sketch
   }
-  const userSpan = card.querySelector('.public-sketch-user')
-  userSpan.textContent = sk.username || sk.userId || 'Anonymous'
 
-  // --- Like button ---
-  let likeBtn = card.querySelector('.like-action')
-  if (!likeBtn) {
-    likeBtn = document.createElement('span')
-    likeBtn.className = 'sketch-action-icon like-action'
-    card.appendChild(likeBtn)
-  }
-  likeBtn.innerHTML = `❤️ <span class="like-count">${sk.likeCount || 0}</span>`
+  const likeBtn = card.querySelector('.like-action')
+  const likeCountSpan = likeBtn.querySelector('.like-count')
   likeBtn.title = 'Like this sketch'
   likeBtn.style.cursor = 'pointer'
+  likeBtn.textContent = '❤️ '
+  if (likeCountSpan) {
+    likeCountSpan.textContent = sk.likeCount || 0
+    likeBtn.appendChild(likeCountSpan)
+  } else {
+    const count = document.createElement('span')
+    count.className = 'like-count'
+    count.textContent = sk.likeCount || 0
+    likeBtn.appendChild(count)
+  }
 
   // Determine if user already liked
   let alreadyLiked = false
@@ -771,13 +773,8 @@ function createPublicSketchCard(sk) {
     }
   } catch {}
   function updateLikeBtnState(liked) {
-    if (liked) {
-      likeBtn.style.opacity = '0.5'
-      likeBtn.title = 'Unlike this sketch'
-    } else {
-      likeBtn.style.opacity = '1'
-      likeBtn.title = 'Like this sketch'
-    }
+    likeBtn.style.opacity = liked ? '0.5' : '1'
+    likeBtn.title = liked ? 'Unlike this sketch' : 'Like this sketch'
   }
   updateLikeBtnState(alreadyLiked)
 
@@ -807,14 +804,8 @@ function createPublicSketchCard(sk) {
     }
   }
 
-  // --- Info meta button ---
-  let infoBtn = card.querySelector('.info-action')
-  if (!infoBtn) {
-    infoBtn = document.createElement('span')
-    infoBtn.className = 'sketch-action-icon info-action'
-    card.appendChild(infoBtn)
-  }
-  infoBtn.innerHTML = 'ℹ️'
+  const infoBtn = card.querySelector('.info-action')
+  infoBtn.textContent = 'ℹ️'
   infoBtn.title = 'Show info'
   infoBtn.onclick = function (e) {
     e.stopPropagation()
@@ -856,7 +847,7 @@ async function loadPublicSketches() {
     if (loadingDiv) loadingDiv.style.display = 'none'
     if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
-      errorDiv.textContent = 'Could not load public sketches.'
+      errorDiv.textContent = 'Could not load public sketches: ' + (error.message || error)
       errorDiv.style.display = ''
     }
   }

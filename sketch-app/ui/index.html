@@ -596,12 +596,6 @@
       max-width: 120px;
     }
 
-    .public-sketch-meta {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 4px;
-    }
-
     .error {
       color: #b02a37;
       display: none;
@@ -830,10 +824,14 @@
         <div id="style-tags"></div>
       </div>
       <div id="ai-options"></div>
-      <h2>Saved Sketches <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button></h2>
-      <div id="sketches-loading" style="display:none;">Loading...</div>
-      <div id="sketches-error" class="error"></div>
-      <div id="sketches"></div>
+      <!-- Saved Sketches Section -->
+      <section id="saved-sketches-section">
+        <h2>Saved Sketches <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button></h2>
+        <div id="sketches-loading" style="display:none;">Loading...</div>
+        <div id="sketches-error" class="error"></div>
+        <div id="sketches"></div>
+      </section>
+      <!-- Template for saved sketch card -->
       <template id="sketch-card-template">
         <div class="sketch-card">
           <div class="sketch-img-container">
@@ -858,8 +856,9 @@
       <template id="public-sketch-card-template">
         <div class="public-sketch-card">
           <img src="" alt="Public Sketch" />
-          <div class="public-sketch-meta">
-            <span class="public-sketch-user"></span>
+          <div class="public-sketch-actions">
+            <span class="sketch-action-icon like-action" title="Like this sketch" tabindex="0" aria-label="Like"></span>
+            <span class="sketch-action-icon info-action" title="Show info" tabindex="0" aria-label="Show info"></span>
           </div>
         </div>
       </template>
