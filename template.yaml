@@ -85,6 +85,11 @@ Resources:
           Properties:
             Path: /delete-sketch
             Method: POST
+        LikeSketchApi:
+          Type: Api
+          Properties:
+            Path: /like-sketch
+            Method: POST
 
   SketchTable:
     Type: AWS::DynamoDB::Table

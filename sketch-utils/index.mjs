@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PutCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, QueryCommand, UpdateCommand, DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamo = new DynamoDBClient({})
 
@@ -13,6 +13,7 @@ export const handler = async (event) => {
   else if (method === 'POST' && path && path.includes('set-sketch-public')) return setSketchPublicHandler(event)
   else if (method === 'GET' && path && path.includes('public-sketches')) return getPublicSketchesHandler(event)
   else if (method === 'POST' && path && path.includes('delete-sketch')) return deleteSketchHandler(event)
+  else if (method === 'POST' && path && path.includes('like-sketch')) return likeSketchHandler(event)
   else return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) }
 }
 
@@ -376,6 +377,81 @@ export const deleteSketchHandler = async (event) => {
     }
   } catch (error) {
     console.error('Error deleting sketch:', error)
+    return {
+      statusCode: 500,
+      headers: cors,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    }
+  }
+}
+
+// Handler to like/unlike a public sketch (toggle with likedBy array)
+export const likeSketchHandler = async (event) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
+  try {
+    let body
+    try {
+      body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
+    } catch (e) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Invalid JSON' })
+      }
+    }
+    const { userId, sketchId } = body
+    if (!userId || !sketchId) {
+      return {
+        statusCode: 400,
+        headers: cors,
+        body: JSON.stringify({ error: 'Missing userId or sketchId' })
+      }
+    }
+    // Fetch the sketch using GetCommand (userId and sketchId are the key schema)
+    const getResult = await dynamo.send(new GetCommand({
+      TableName: process.env.SKETCHES_TABLE,
+      Key: { userId, sketchId }
+    }))
+    const sketch = getResult.Item
+    if (!sketch) {
+      return {
+        statusCode: 404,
+        headers: cors,
+        body: JSON.stringify({ error: 'Sketch not found' })
+      }
+    }
+    let likedBy = sketch.likedBy || []
+    if (!Array.isArray(likedBy)) likedBy = []
+    let liked
+    if (likedBy.includes(userId)) {
+      // Unlike: remove userId
+      likedBy = likedBy.filter(id => id !== userId)
+      liked = false
+    } else {
+      // Like: add userId
+      likedBy.push(userId)
+      liked = true
+    }
+    // Update likedBy and likeCount
+    await dynamo.send(new UpdateCommand({
+      TableName: process.env.SKETCHES_TABLE,
+      Key: { userId, sketchId },
+      UpdateExpression: 'SET likedBy = :likedBy, likeCount = :likeCount',
+      ExpressionAttributeValues: {
+        ':likedBy': likedBy,
+        ':likeCount': likedBy.length
+      }
+    }))
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ likeCount: likedBy.length, liked })
+    }
+  } catch (error) {
+    console.error('Error liking/unliking sketch:', error)
     return {
       statusCode: 500,
       headers: cors,

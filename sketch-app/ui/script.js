@@ -748,6 +748,81 @@ function createPublicSketchCard(sk) {
   }
   const userSpan = card.querySelector('.public-sketch-user')
   userSpan.textContent = sk.username || sk.userId || 'Anonymous'
+
+  // --- Like button ---
+  let likeBtn = card.querySelector('.like-action')
+  if (!likeBtn) {
+    likeBtn = document.createElement('span')
+    likeBtn.className = 'sketch-action-icon like-action'
+    card.appendChild(likeBtn)
+  }
+  likeBtn.innerHTML = `❤️ <span class="like-count">${sk.likeCount || 0}</span>`
+  likeBtn.title = 'Like this sketch'
+  likeBtn.style.cursor = 'pointer'
+
+  // Determine if user already liked
+  let alreadyLiked = false
+  let userId = null
+  try {
+    const user = getCurrentUserObject()
+    userId = user && user.id
+    if (sk.likedBy && Array.isArray(sk.likedBy) && userId && sk.likedBy.includes(userId)) {
+      alreadyLiked = true
+    }
+  } catch {}
+  function updateLikeBtnState(liked) {
+    if (liked) {
+      likeBtn.style.opacity = '0.5'
+      likeBtn.title = 'Unlike this sketch'
+    } else {
+      likeBtn.style.opacity = '1'
+      likeBtn.title = 'Like this sketch'
+    }
+  }
+  updateLikeBtnState(alreadyLiked)
+
+  likeBtn.onclick = async function (e) {
+    e.stopPropagation()
+    likeBtn.style.pointerEvents = 'none'
+    try {
+      const user = getCurrentUserObject()
+      const res = await fetch('/like-sketch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem('githubToken') || ''
+        },
+        body: JSON.stringify({ sketchId: sk.sketchId, userId: user.id })
+      })
+      if (!res.ok) throw new Error('Failed to like/unlike sketch')
+      const data = await res.json()
+      const countSpan = likeBtn.querySelector('.like-count')
+      if (countSpan && typeof data.likeCount === 'number') countSpan.textContent = data.likeCount.toString()
+      updateLikeBtnState(data.liked)
+      alreadyLiked = data.liked
+    } catch (err) {
+      alert('Could not like/unlike sketch: ' + (err.message || err))
+    } finally {
+      likeBtn.style.pointerEvents = ''
+    }
+  }
+
+  // --- Info meta button ---
+  let infoBtn = card.querySelector('.info-action')
+  if (!infoBtn) {
+    infoBtn = document.createElement('span')
+    infoBtn.className = 'sketch-action-icon info-action'
+    card.appendChild(infoBtn)
+  }
+  infoBtn.innerHTML = 'ℹ️'
+  infoBtn.title = 'Show info'
+  infoBtn.onclick = function (e) {
+    e.stopPropagation()
+    showSketchMetaPopup(sk, infoBtn)
+  }
+  infoBtn.onmouseenter = null
+  infoBtn.onmouseleave = null
+
   return node
 }
 
@@ -882,7 +957,7 @@ function hideSketchMetaPopup() {
   document.querySelectorAll('.sketch-meta-popup').forEach(popup => { popup.remove() })
 }
 
-// Show sketch metadata popup (info icon)
+// Show sketch metadata popup (info icon) - only on click, with smart positioning
 function showSketchMetaPopup(sketch, anchorEl) {
   hideSketchMetaPopup()
   // Create popup
@@ -900,11 +975,25 @@ function showSketchMetaPopup(sketch, anchorEl) {
     <b>Style Tags:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
   `
-  // Position popup below the anchor element
+  // Smart positioning: try to keep popup in viewport
   const rect = anchorEl.getBoundingClientRect()
+  const popupWidth = 260
+  const popupHeight = 180
+  let left = rect.left
+  let top = rect.bottom + 4
+  // Adjust if popup would overflow right edge
+  if (left + popupWidth > window.innerWidth - 8) {
+    left = window.innerWidth - popupWidth - 8
+  }
+  // Adjust if popup would overflow bottom edge
+  if (top + popupHeight > window.innerHeight - 8) {
+    top = rect.top - popupHeight - 4
+    if (top < 8) top = 8
+  }
+  if (left < 8) left = 8
   popup.style.position = 'fixed'
-  popup.style.left = `${rect.left}px`
-  popup.style.top = `${rect.bottom + 4}px`
+  popup.style.left = `${left}px`
+  popup.style.top = `${top}px`
   popup.style.pointerEvents = 'auto'
   // Dismiss on click outside (mobile)
   function onDocClick(e) {
