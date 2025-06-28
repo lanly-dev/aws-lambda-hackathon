@@ -709,7 +709,7 @@ loadAccountSketches = async function () {
       method: 'GET',
       headers: { Authorization: `Bearer ${authHeader}` }
     })
-    if (!response.ok) throw new Error('Failed to load sketches')
+    if (!response.ok) throw new Error('Request failed with status ' + response.status)
     const data = await response.json()
     const sketches = data.sketches || []
     const failedSketches = data.failedSketches || []
@@ -732,7 +732,7 @@ loadAccountSketches = async function () {
     if (errorDiv) {
       if (errorMsg) {
         errorDiv.textContent = errorMsg.trim()
-        errorDiv.style.display = ''
+        errorDiv.style.display = 'block'
       } else {
         errorDiv.textContent = ''
         errorDiv.style.display = 'none'
@@ -742,8 +742,8 @@ loadAccountSketches = async function () {
     loadingDiv.style.display = 'none'
     if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
-      errorDiv.textContent = 'Error loading sketches: ' + error.message
-      errorDiv.style.display = ''
+      errorDiv.textContent = 'Could not load sketches: ' + (error.message ?? error)
+      errorDiv.style.display = 'block'
     }
   }
 }
@@ -855,15 +855,14 @@ async function loadPublicSketches() {
       const card = createPublicSketchCard(sk)
       if (card) sketchesDiv.appendChild(card)
     })
-    if (loadingDiv) loadingDiv.style.display = 'none'
-    if (sketchesDiv) sketchesDiv.style.display = ''
+    loadingDiv.style.display = 'none'
+    sketchesDiv.style.display = ''
   } catch (error) {
-    if (loadingDiv) loadingDiv.style.display = 'none'
-    if (sketchesDiv) sketchesDiv.style.display = ''
-    if (errorDiv) {
-      errorDiv.textContent = 'Could not load public sketches: ' + (error.message || error)
-      errorDiv.style.display = ''
-    }
+    loadingDiv.style.display = 'none'
+    sketchesDiv.style.display = 'none'
+    errorDiv.textContent = 'Could not load public sketches: ' + (error.message ?? error)
+    errorDiv.style.display = 'block'
+
   }
 }
 
@@ -979,7 +978,7 @@ function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
   popup.innerHTML = `
     <b>Sketch ID:</b> <span style="word-break:break-all">${sketch.sketchId}</span><br>
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
-    ${isPrivate ? (`<b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>`) : '' }
+    ${isPrivate ? (`<b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>`) : ''}
     <b>Description:</b> ${description ?? ''}<br>
     <b>Styles:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
