@@ -718,6 +718,7 @@ async function loadAccountSketchesIncremental(append = false) {
     const data = await response.json()
     const sketches = data.sketches || []
     sketchesNextCursor = data.nextCursor || null
+    console.trace('createSketchCard')
     sketches.forEach(sk => {
       const card = createSketchCard(sk, userId)
       if (card) sketchesDiv.appendChild(card)
@@ -1113,13 +1114,7 @@ async function deleteSketch(userId, sketchId) {
 function restoreUIState() {
   const githubToken = localStorage.getItem('githubToken')
   const currentUser = JSON.parse(localStorage.getItem('githubUser'))
-
-  if (githubToken && currentUser) {
-    showUserInfo()
-    updateUIBasedOnAuth()
-  } else {
-    showLoginSection()
-  }
+  if (githubToken && currentUser)  updateUIBasedOnAuth()
 }
 
 window.aiAssist = aiAssist

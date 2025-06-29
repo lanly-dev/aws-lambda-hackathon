@@ -567,8 +567,7 @@
     }
 
     #ai-options img {
-      margin-right: 8px;
-      margin-bottom: 8px;
+      margin-right: 4px;
       cursor: pointer;
     }
 
@@ -849,7 +848,7 @@
       <div class="description-section">
         <label for="description-input" class="description-label">Description:
           <span class="info-icon" tabindex="0">ⓘ
-            <span class="info-tooltip">Required, example: "A blue starfish⭐🐟, or a banana 🍌"</span>
+            <span class="info-tooltip">Required, example: "A blue starfish⭐🐟, or a banana 🍌</span>
           </span>
         </label>
         <input id="description-input" type="text" maxlength="50" placeholder="Describe your sketch..."
@@ -859,7 +858,7 @@
         <div class="style-tags-label">Style Tags:
           <span class="info-icon" tabindex="0">ⓘ
             <span class="info-tooltip">Optional, but recommended! 5 selection max,
-              <br>and you could add your very own style tags 🤩"
+              <br>and you could add your very own style tags 🤩
             </span>
           </span>
           <span id="style-tag-limit-msg"></span>
@@ -870,14 +869,14 @@
         </div>
         <div id="style-tags"></div>
       </div>
-      <div id="ai-options"></div>
       <!-- Template for AI Assist Options -->
-      <template id="ai-options-template">
+      <section id="ai-options-section">
         <div style="margin-bottom:6px">Pick a style:</div>
-        <div class="ai-option">
+        <div id="ai-options"> </div>
+        <template id="ai-options-template">
           <img class="ai-option-img" width="160" title="" data-description="" data-style-tags="[]" data-model-name="">
-        </div>
-      </template>
+        </template>
+      </section>
       <!-- Saved Sketches Section -->
       <section id="saved-sketches-section">
         <h2>Saved Sketches
@@ -910,8 +909,11 @@
       <section id="public-sketches-section">
         <h2>Public Sketches
           <span class="info-icon" tabindex="0">ⓘ
-            <span class="info-tooltip">You can like or restyle others' public sketches
-              <br> or use these to generate more creativity sketches 🦄</span>
+            <span class="info-tooltip">
+              You can like (required login)
+              <br> or re-sketch others' public sketches
+              <br>to create more fun sketches 🌈
+            </span>
           </span>
           <button id="refresh-public-sketches-btn" type="button" title="Refresh">🔄</button>
           <span id="public-sketches-loading">Loading...</span>
