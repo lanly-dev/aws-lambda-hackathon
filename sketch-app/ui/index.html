@@ -66,6 +66,7 @@
       padding: 24px 24px 12px 24px;
       box-sizing: border-box;
       background: #fff;
+      overflow-y: auto;
     }
 
     h1 {
@@ -266,7 +267,8 @@
       gap: 8px;
       justify-content: flex-start;
       max-width: 100%;
-      overflow-x: auto;
+      overflow: auto;
+      max-height: 85%;
     }
 
     #sketches img {
@@ -484,6 +486,7 @@
 
       .right-panel {
         padding-top: 8px;
+        overflow-y: visible;
       }
 
       canvas {
@@ -523,6 +526,7 @@
 
       .right-panel {
         padding-top: 8px;
+        overflow-y: visible;
       }
 
       canvas {
@@ -560,7 +564,7 @@
 
     /* Public Sketches Section */
     #public-sketches-section {
-      margin-top: 24px;
+      margin-top: 5px;
     }
 
     #public-sketches {
@@ -569,7 +573,8 @@
       gap: 8px;
       justify-content: flex-start;
       max-width: 100%;
-      overflow-x: auto;
+      overflow: auto;
+      max-height: 85%;
     }
 
     .public-sketch-card {
@@ -593,6 +598,10 @@
       transition: box-shadow 0.2s, border 0.2s;
       max-width: 90px !important;
       height: auto;
+    }
+
+    #saved-sketches-section, #public-sketches-section {
+      min-height: 30%;
     }
 
     .error {
