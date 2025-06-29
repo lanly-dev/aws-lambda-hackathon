@@ -92,7 +92,7 @@ export const saveSketchHandler = async (event) => {
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }
@@ -157,13 +157,13 @@ export const getSketchesHandler = async (event) => {
 
     const userId = parseInt(theId)
     // Pagination support
-    const limit = Math.max(1, Math.min(50, parseInt(urlParams.get('limit')) || 10))
+    const limit = Math.max(1, Math.min(5, parseInt(urlParams.get('limit')) || 5))
     const lastKey = urlParams.get('lastKey')
 
-    let ExclusiveStartKey
+    let theExclusiveStartKey
     if (lastKey) {
       try {
-        ExclusiveStartKey = JSON.parse(lastKey)
+        theExclusiveStartKey = JSON.parse(lastKey)
       } catch {
         return {
           statusCode: 400,
@@ -178,7 +178,7 @@ export const getSketchesHandler = async (event) => {
       ExpressionAttributeValues: { ':uid': userId },
       Limit: limit
     }
-    if (ExclusiveStartKey) queryParams.ExclusiveStartKey = ExclusiveStartKey
+    if (theExclusiveStartKey) queryParams.ExclusiveStartKey = theExclusiveStartKey
     const sketchesResult = await dynamo.send(new QueryCommand(queryParams))
     const sketches = sketchesResult.Items || []
 
@@ -271,13 +271,13 @@ export const setSketchPublicHandler = async (event) => {
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }
 
 // Handler to get public sketches
-export const getPublicSketchesHandler = async () => {
+export const getPublicSketchesHandler = async (event) => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
@@ -285,34 +285,67 @@ export const getPublicSketchesHandler = async () => {
   try {
     const isDevMode = process.env.MODE === 'dev'
     if (isDevMode) {
-      // Return a mock list of public sketches
+      // Return a mock list of public sketches with pagination support
+      const urlParams = new URLSearchParams(event.queryStringParameters || {})
+      const limit = Math.max(1, Math.min(50, parseInt(urlParams.get('limit')) || 10))
+      const lastKey = urlParams.get('lastKey')
+
+      const mockSketches = Array.from({ length: 25 }, (_, i) => ({
+        sketchId: `mock-public-${i + 1}`,
+        userId: i + 1,
+        sketch: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
+        createdAt: new Date(Date.now() - i * 60000).toISOString(),
+        isPublic: 1,
+        username: `demo-user-${i + 1}`,
+        userAvatar: 'https://example.com/avatar.png',
+        likeCount: Math.floor(Math.random() * 10)
+      }))
+
+      const startIndex = lastKey ? parseInt(lastKey) || 0 : 0
+      const endIndex = Math.min(startIndex + limit, mockSketches.length)
+      const sketches = mockSketches.slice(startIndex, endIndex)
+
+      const nextCursor = endIndex < mockSketches.length ? endIndex.toString() : null
+
       return {
         statusCode: 200,
         headers: cors,
-        body: JSON.stringify({
-          sketches: [
-            {
-              sketchId: 'mock-public-1',
-              userId: 1,
-              sketch: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
-              createdAt: new Date().toISOString(),
-              isPublic: 1,
-              username: 'demo-user',
-              userAvatar: 'https://example.com/avatar.png'
-            }
-          ]
-        })
+        body: JSON.stringify({ sketches, nextCursor })
       }
     }
-    // Query DynamoDB GSI for public sketches
-    const result = await dynamo.send(new QueryCommand({
+
+    // Parse query parameters for pagination
+    const urlParams = new URLSearchParams(event.queryStringParameters || {})
+    const limit = Math.max(1, Math.min(5, parseInt(urlParams.get('limit')) || 5))
+    const lastKey = urlParams.get('lastKey')
+
+    let theExclusiveStartKey
+    if (lastKey) {
+      try {
+        theExclusiveStartKey = JSON.parse(lastKey)
+      } catch {
+        return {
+          statusCode: 400,
+          headers: cors,
+          body: JSON.stringify({ error: 'Invalid lastKey format' })
+        }
+      }
+    }
+
+    // Query DynamoDB GSI for public sketches with pagination
+    const queryParams = {
       TableName: process.env.SKETCHES_TABLE,
       IndexName: 'PublicSketches',
       KeyConditionExpression: 'isPublic = :pub',
       ExpressionAttributeValues: { ':pub': 1 },
-      Limit: 50 // Limit to 50 public sketches
-    }))
+      Limit: limit,
+      ScanIndexForward: false // Most recent first
+    }
+    if (theExclusiveStartKey) queryParams.ExclusiveStartKey = theExclusiveStartKey
+
+    const result = await dynamo.send(new QueryCommand(queryParams))
     const sketches = result.Items || []
+
     // For each sketch, reconstruct the base64 image from parts
     for (const sketch of sketches) {
       const partsResult = await dynamo.send(new QueryCommand({
@@ -324,17 +357,24 @@ export const getPublicSketchesHandler = async () => {
       parts.sort((a, b) => a.partNumber - b.partNumber)
       sketch.sketch = parts.map(part => part.data).join('')
     }
+
+    // Prepare nextCursor if more data
+    let nextCursor = null
+    if (result.LastEvaluatedKey) {
+      nextCursor = JSON.stringify(result.LastEvaluatedKey)
+    }
+
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ sketches })
+      body: JSON.stringify({ sketches, nextCursor })
     }
   } catch (error) {
     console.error('Error retrieving public sketches:', error)
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }
@@ -400,7 +440,7 @@ export const deleteSketchHandler = async (event) => {
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }
@@ -475,7 +515,7 @@ export const likeSketchHandler = async (event) => {
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }

@@ -30,9 +30,7 @@ async function exchangeCodeForToken(code) {
     // Call our backend OAuth endpoint
     const response = await fetch('/auth/github', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code })
     })
 
@@ -80,7 +78,8 @@ function verifyGitHubToken() {
     }
 
     fetch('https://api.github.com/user', {
-      headers: {
+      headers:
+      {
         Authorization: `token ${githubToken}`,
         Accept: 'application/vnd.github.v3+json'
       }
@@ -698,7 +697,7 @@ async function loadAccountSketchesIncremental(append = false) {
   }
 
   try {
-    const url = `/get-sketches?userId=${encodeURIComponent(userId)}&limit=10${sketchesNextCursor ? `&lastKey=${encodeURIComponent(sketchesNextCursor)}` : ''}`
+    const url = `/get-sketches?userId=${encodeURIComponent(userId)}&limit=5${sketchesNextCursor ? `&lastKey=${encodeURIComponent(sketchesNextCursor)}` : ''}`
     const response = await fetch(url, {
       method: 'GET',
       headers: { Authorization: `Bearer ${authHeader}` }
@@ -826,36 +825,62 @@ function createPublicSketchCard(sk) {
   return node
 }
 
-// Load and render public sketches with loading and error UI
-async function loadPublicSketches() {
+let publicSketchesNextCursor = null
+
+async function loadPublicSketchesIncremental(append = false) {
   const loadingDiv = document.getElementById('public-sketches-loading')
   const errorDiv = document.getElementById('public-sketches-error')
   const sketchesDiv = document.getElementById('public-sketches')
+
   loadingDiv.style.display = 'inline-block'
-  if (sketchesDiv) sketchesDiv.style.display = 'none'
+  if (!append && sketchesDiv) sketchesDiv.innerHTML = ''
   if (errorDiv) {
     errorDiv.textContent = ''
     errorDiv.style.display = 'none'
   }
+
   try {
-    const response = await fetch('/public-sketches', { method: 'GET' })
-    if (!response.ok) throw new Error('Failed to load public sketches')
+    const url = `/public-sketches?limit=5${publicSketchesNextCursor ? `&lastKey=${encodeURIComponent(publicSketchesNextCursor)}` : ''}`
+    const response = await fetch(url, { method: 'GET' })
+    if (!response.ok) throw new Error('Request failed with status ' + response.status)
     const data = await response.json()
     const sketches = data.sketches || []
-    sketchesDiv.innerHTML = ''
+    publicSketchesNextCursor = data.nextCursor || null
+
     sketches.forEach(sk => {
       const card = createPublicSketchCard(sk)
       if (card) sketchesDiv.appendChild(card)
     })
+
     loadingDiv.style.display = 'none'
-    sketchesDiv.style.display = ''
+    if (sketchesDiv) sketchesDiv.style.display = ''
+    if (errorDiv) {
+      errorDiv.textContent = ''
+      errorDiv.style.display = 'none'
+    }
+    return sketches.length > 0
   } catch (error) {
     loadingDiv.style.display = 'none'
-    sketchesDiv.style.display = 'none'
-    errorDiv.textContent = 'Could not load public sketches: ' + (error.message ?? error)
-    errorDiv.style.display = 'block'
-
+    if (sketchesDiv) sketchesDiv.style.display = 'none'
+    if (errorDiv) {
+      errorDiv.textContent = 'Could not load public sketches: ' + (error.message ?? error)
+      errorDiv.style.display = 'block'
+    }
+    return false
   }
+}
+
+async function loadPublicSketches() {
+  publicSketchesNextCursor = null
+
+  function loadNextBatch(isFirstBatch = false) {
+    loadPublicSketchesIncremental(!isFirstBatch).then(() => {
+      if (!publicSketchesNextCursor) return
+      if (window.requestIdleCallback) requestIdleCallback(() => loadNextBatch(false))
+      else setTimeout(() => loadNextBatch(false), 0)
+    })
+  }
+  loadNextBatch(true)
 }
 
 function setupCanvasEvents() {
@@ -1024,31 +1049,6 @@ function setupDescriptionField() {
   })
 }
 
-// Global functions
-window.aiAssist = aiAssist
-window.clearCanvas = clearCanvas
-window.downloadCanvas = downloadCanvas
-window.loginWithGitHub = loginWithGitHub
-window.logout = logout
-window.renderStyleTags = renderStyleTags
-window.saveSketchForAccount = saveSketchForAccount
-window.saveToTimeline = saveToTimeline
-
-// DOMContentLoaded event
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    loadPublicSketches()
-    renderStyleTags()
-    setupAddStyleTagRow()
-    setupDescriptionField()
-  })
-} else {
-  loadPublicSketches()
-  renderStyleTags()
-  setupAddStyleTagRow()
-  setupDescriptionField()
-}
-
 // Refresh button events
 if (document.getElementById('refresh-sketches-btn')) {
   document.getElementById('refresh-sketches-btn').onclick = () => loadAccountSketches()
@@ -1081,4 +1081,27 @@ async function deleteSketch(userId, sketchId) {
   } catch (error) {
     alert('Error deleting sketch: ' + error.message)
   }
+}
+
+window.aiAssist = aiAssist
+window.clearCanvas = clearCanvas
+window.downloadCanvas = downloadCanvas
+window.loginWithGitHub = loginWithGitHub
+window.logout = logout
+window.renderStyleTags = renderStyleTags
+window.saveSketchForAccount = saveSketchForAccount
+window.saveToTimeline = saveToTimeline
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPublicSketches()
+    renderStyleTags()
+    setupAddStyleTagRow()
+    setupDescriptionField()
+  })
+} else {
+  loadPublicSketches()
+  renderStyleTags()
+  setupAddStyleTagRow()
+  setupDescriptionField()
 }
