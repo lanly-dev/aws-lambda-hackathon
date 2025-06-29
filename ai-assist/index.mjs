@@ -30,6 +30,7 @@ function getMockStyles() {
  */
 async function callBedrockStyle(base64Png, count, prompt, modelId) {
   const client = new BedrockRuntimeClient({ region: 'us-west-2' })
+
   if (modelId.startsWith('amazon.titan-image-generator')) {
     const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
     // Debug: Log base64 length and preview URL
@@ -73,14 +74,14 @@ async function callBedrockStyle(base64Png, count, prompt, modelId) {
       throw error
     }
   } else if (modelId.startsWith('stability.')) {
-    alert('Stability.ai is not yet supported in this demo.')
+    // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-diffusion-1-0-text-image.html
+    // https://platform.stability.ai/docs/api-reference#tag/Generate/paths/~1v2beta~1stable-image~1generate~1ultra/post
+    // Note: Stability AI models are not available in all regions, and depend on the model
+    console.log(`Coming soon: ${modelId}`)
+    return []
   } else {
     throw new Error('Unsupported model: ' + modelId)
   }
-  const command = new InvokeModelCommand(input)
-  const response = await client.send(command)
-  const result = JSON.parse(new TextDecoder().decode(response.body))
-  return result.image || result.images?.[0] || base64Png
 }
 
 async function getDemoUsage(ip) {

@@ -152,10 +152,10 @@ function updateUIBasedOnAuth() {
     if (index > 1) option.disabled = !isLoggedIn
   })
 
-  // Update model options
-  Array.from(modelSelect.options).forEach(option => {
-    if (option.value.includes('stability')) option.disabled = !isLoggedIn
-  })
+  // // Update model options
+  // Array.from(modelSelect.options).forEach(option => {
+  //   if (option.value.includes('stability.sd3-large-v1')) option.disabled = !isLoggedIn
+  // })
 
   // Reset to safe defaults if logged out
   if (!isLoggedIn) {

@@ -810,7 +810,9 @@
     <div class="right-panel">
       <h2>AI Assist</h2>
       <div class="ai-assist-controls">
-        <button id="ai-assist-button" class="ai-assist-btn" type="button" title="🪄" onclick="aiAssist()">AI Assist</button>
+        <button id="ai-assist-button" class="ai-assist-btn" type="button" title="🪄" onclick="aiAssist()">
+          AI Assist
+        </button>
         <div class="ai-assist-group">
           <label for="style-count-select" title="Style count" class="ai-label">
             Styles:
@@ -829,12 +831,12 @@
           <label for="model-select" class="ai-label">
             Model:
             <span class="info-icon" tabindex="0">ⓘ
-              <span class="info-tooltip">Stable Diffusion models require login</span>
+              <span class="info-tooltip">Select a model to use</span>
             </span>
           </label>
           <select id="model-select" class="ai-dropdown">
             <option value="amazon.titan-image-generator-v2:0">Titan Image Generator G1 v2</option>
-            <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large v1</option>
+            <option value="stability.sd3-large-v1:0" disabled>Stable Diffusion Large v1 (Coming soon)</option>
             <option value="stability.stable-image-core-v1:0" disabled>Stable Diffusion core v1 (Coming soon)
             </option>
           </select>
@@ -874,6 +876,11 @@
       <!-- Saved Sketches Section -->
       <section id="saved-sketches-section">
         <h2>Saved Sketches
+          <span class="info-icon" tabindex="0">ⓘ
+            <span class="info-tooltip">You can publish your sketches to inspire others
+              <br> or delete your saved sketches here👍
+            </span>
+          </span>
           <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button>
           <span id="sketches-loading">Loading...</span>
         </h2>
@@ -897,6 +904,10 @@
       <!-- Public Sketches Section -->
       <section id="public-sketches-section">
         <h2>Public Sketches
+          <span class="info-icon" tabindex="0">ⓘ
+            <span class="info-tooltip">You can like or restyle others' public sketches
+              <br> or use these to generate more creativity sketches 🫨</span>
+          </span>
           <button id="refresh-public-sketches-btn" type="button" title="Refresh">🔄</button>
           <span id="public-sketches-loading">Loading...</span>
         </h2>
