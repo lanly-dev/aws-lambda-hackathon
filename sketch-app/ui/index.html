@@ -226,18 +226,6 @@
       width: 100%;
     }
 
-    #ai-options img {
-      cursor: pointer;
-      border-radius: 10px;
-      width: 90px;
-      height: 90px;
-    }
-
-    #ai-options img.selected {
-      border-color: #0078d7;
-      box-shadow: 0 0 0 3px #b3d1ff;
-    }
-
     #timeline {
       width: 100%;
       max-width: 100%;
@@ -269,23 +257,6 @@
       max-width: 100%;
       overflow: auto;
       max-height: 85%;
-    }
-
-    #sketches img {
-      border-radius: 10px;
-      border: 1.5px solid #e6edff;
-      box-shadow: 0 1px 4px #0001;
-      background: #f8faff;
-      transition: box-shadow 0.2s, border 0.2s;
-      cursor: pointer;
-      max-width: 90px;
-      width: 100%;
-      height: auto;
-    }
-
-    #sketches img:hover {
-      border-color: #7faaff;
-      box-shadow: 0 2px 8px #bfcfff33;
     }
 
     #ai-assist-button {
@@ -547,16 +518,6 @@
         min-height: 36px;
       }
 
-      #ai-options img {
-        width: 40px;
-        max-width: 50px;
-        max-height: 40px;
-      }
-
-      #sketches img {
-        max-width: 60px;
-      }
-
       .sketch-action-icon {
         font-size: small;
       }
@@ -586,10 +547,14 @@
       transition: transform 0.2s;
     }
 
+    #ai-options img:hover,
+    .sketch-card:hover,
     .public-sketch-card:hover {
       transform: scale(1.02);
     }
 
+    #ai-options img,
+    .sketch-card img,
     .public-sketch-card img {
       border-radius: 10px;
       border: 1.5px solid #e6edff;
@@ -598,6 +563,12 @@
       transition: box-shadow 0.2s, border 0.2s;
       max-width: 90px !important;
       height: auto;
+    }
+
+    #ai-options img {
+      margin-right: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
     }
 
     #saved-sketches-section, #public-sketches-section {

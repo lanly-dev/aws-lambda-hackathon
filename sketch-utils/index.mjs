@@ -24,7 +24,7 @@ export const saveSketchHandler = async (event) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
   try {
-    const { userId, sketch, username, userAvatar, styleTags, model, isPublic } = JSON.parse(event.body)
+    const { userId, sketch, username, userAvatar, description, styleTags, model, isPublic } = JSON.parse(event.body)
     const authHeader = event.headers?.Authorization || event.headers?.authorization
 
     if (!authHeader) {
@@ -52,6 +52,7 @@ export const saveSketchHandler = async (event) => {
       username,
       userAvatar,
       sketchId,
+      description,
       styleTags: styleTags || [],
       model,
       isPublic: isPublic ? 1 : 0,

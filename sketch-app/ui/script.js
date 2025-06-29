@@ -297,7 +297,7 @@ async function aiAssist() {
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')
-  optionsDiv.innerHTML = '<div style="margin-bottom:6px">Pick a style:</div><br>'
+  optionsDiv.innerHTML = '<div style="margin-bottom:6px">Pick a style:</div>'
   result.styles.forEach((style) => {
     const img = document.createElement('img')
     img.src = `data:image/png;base64,${style.image}`
@@ -328,7 +328,7 @@ if (!document.getElementById('ai-spinner-style')) {
 }
 // Default style tags
 const DEFAULT_TAGS = [
-  'Cartoon', 'Pencil', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'
+  'Cartoon', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'
 ]
 
 function getUserStyleTags() {
