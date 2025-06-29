@@ -522,10 +522,12 @@ async function saveSketchForAccount(isPublic = false) {
   let username
   let userAvatar
   try {
-    const { id, login, avatar_url } = getCurrentUserObject()
-    userId = id
-    username = login
-    userAvatar = avatar_url
+    const userObj = getCurrentUserObject()
+    if (userObj) {
+      userId = userObj.id
+      username = userObj.login
+      userAvatar = userObj.avatar_url
+    }
   } catch (e) {
     console.error('Error getting user info:', e.message)
     return
