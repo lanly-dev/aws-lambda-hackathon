@@ -4,8 +4,7 @@
     "efix",
     "lightpink",
     "samconfig",
-    "unliking",
-    "uuidv"
+    "unliking"
   ],
   // Sort the Explorer tree view by type (folders first, then files)
   "explorer.sortOrder": "type"

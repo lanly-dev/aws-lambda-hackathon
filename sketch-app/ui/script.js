@@ -38,7 +38,7 @@ async function exchangeCodeForToken(code) {
 
     const data = await response.json()
 
-    console.log('Received token and user data:', data) // Debugging log
+    // console.log('Received token and user data:', data) // Debugging log
 
     // Store the real token and user data
     githubToken = data.access_token
@@ -68,7 +68,7 @@ async function exchangeCodeForToken(code) {
 
 function verifyGitHubToken() {
   try {
-    console.log('Verifying GitHub token:', githubToken) // Debugging log
+    // console.log('Verifying GitHub token:', githubToken) // Debugging log
 
     if (!githubToken) {
       console.error('GitHub token is missing') // Debugging log
@@ -92,7 +92,7 @@ function verifyGitHubToken() {
         }
       })
       .then(user => {
-        console.log('Verified user:', user) // Debugging log
+        // console.log('Verified user:', user) // Debugging log
         currentUser = user
         localStorage.setItem('githubUser', JSON.stringify(user))
         showUserInfo()
@@ -798,6 +798,10 @@ function createPublicSketchCard(sk) {
     likeBtn.style.pointerEvents = 'none'
     try {
       const user = getCurrentUserObject()
+      if (!user) {
+        alert('You must be logged in to like sketches')
+        return
+      }
       const res = await fetch('/like-sketch', {
         method: 'POST',
         headers: {
@@ -813,6 +817,7 @@ function createPublicSketchCard(sk) {
       updateLikeBtnState(data.liked)
       alreadyLiked = data.liked
     } catch (err) {
+      console.error(err)
       alert('Could not like/unlike sketch: ' + (err.message || err))
     } finally {
       likeBtn.style.pointerEvents = ''

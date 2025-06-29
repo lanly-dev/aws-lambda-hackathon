@@ -34,8 +34,8 @@ async function callBedrockStyle(base64Png, count, prompt, modelId) {
   if (modelId.startsWith('amazon.titan-image-generator')) {
     const base64 = base64Png.replace(/^data:image\/png;base64,/, '')
     // Debug: Log base64 length and preview URL
-    console.log('[DEBUG] Received base64 length:', base64.length)
-    console.log('[DEBUG] Preview sketch URL:', 'data:image/png;base64', base64)
+    // console.log('[DEBUG] Received base64 length:', base64.length)
+    // console.log('[DEBUG] Preview sketch URL:', 'data:image/png;base64', base64)
 
     // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
     const payload = {
@@ -77,7 +77,7 @@ async function callBedrockStyle(base64Png, count, prompt, modelId) {
     // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-diffusion-1-0-text-image.html
     // https://platform.stability.ai/docs/api-reference#tag/Generate/paths/~1v2beta~1stable-image~1generate~1ultra/post
     // Note: Stability AI models are not available in all regions, and depend on the model
-    console.log(`Coming soon: ${modelId}`)
+    console.warn(`Coming soon: ${modelId}`)
     return []
   } else {
     throw new Error('Unsupported model: ' + modelId)
@@ -177,7 +177,7 @@ export const handler = async (event) => {
           return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Invalid GitHub token' }) }
         }
         const githubUser = await response.json()
-        console.log('Authenticated user:', githubUser.login)
+        // console.log('Authenticated user:', githubUser.login)
 
         // Authenticated users get 10 requests per 5 minutes
         const authUsage = await getAuthUsage(githubUser.id)

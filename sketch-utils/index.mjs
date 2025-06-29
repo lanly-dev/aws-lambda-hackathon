@@ -99,8 +99,9 @@ export const saveSketchHandler = async (event) => {
 }
 
 // Mock method for saving sketches in development mode
+// eslint-disable-next-line no-unused-vars
 export const saveSketchMock = async (sketchData) => {
-  console.log('🧑‍💻🧑‍💻Mock save sketch invoked with data:', sketchData)
+  // console.log('🧑‍💻🧑‍💻Mock save sketch invoked with data:', sketchData)
   return {
     statusCode: 200,
     body: JSON.stringify({
@@ -119,7 +120,7 @@ export const getSketchesMock = async (userId) => {
         {
           sketchId: 'mock-sketch-1',
           userId,
-          sketch: 'iVBORw0KGgoAAAANSUhEUgAAAAUA',
+          sketch: 'iVBORw0KGgoAKANSUhEUgAAAA',
           createdAt: new Date().toISOString()
         }
       ]
