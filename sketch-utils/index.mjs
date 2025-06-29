@@ -176,7 +176,8 @@ export const getSketchesHandler = async (event) => {
       TableName: process.env.SKETCHES_TABLE,
       KeyConditionExpression: 'userId = :uid',
       ExpressionAttributeValues: { ':uid': userId },
-      Limit: limit
+      Limit: limit,
+      ScanIndexForward: false // Newest first
     }
     if (theExclusiveStartKey) queryParams.ExclusiveStartKey = theExclusiveStartKey
     const sketchesResult = await dynamo.send(new QueryCommand(queryParams))
