@@ -119,7 +119,7 @@ export const getSketchesMock = async (userId) => {
         {
           sketchId: 'mock-sketch-1',
           userId,
-          sketch: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
+          sketch: 'iVBORw0KGgoAAAANSUhEUgAAAAUA',
           createdAt: new Date().toISOString()
         }
       ]

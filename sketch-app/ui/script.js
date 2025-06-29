@@ -954,10 +954,9 @@ function updateButtonStates() {
   const isCanvasEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)
   const aiAssistBtn = document.querySelector('button[onclick="aiAssist()"]')
   const descriptionInput = document.getElementById('description-input')
-  // AI Assist button requires both non-empty canvas and non-empty description
-  if (aiAssistBtn) {
-    aiAssistBtn.disabled = isCanvasEmpty || !(descriptionInput && descriptionInput.value.trim())
-  }
+  // AI Assist button requires non-empty canvas, non-empty description, and not in cooldown
+  aiAssistBtn.disabled = isCanvasEmpty || !(descriptionInput && descriptionInput.value.trim()) || aiAssistCooldown
+
   const buttonsToDisable = [
     aiAssistBtn,
     document.querySelector('button[onclick="clearCanvas()"]'),
