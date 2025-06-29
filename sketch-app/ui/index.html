@@ -122,6 +122,7 @@
 
     #user-info {
       margin-top: 6px;
+      display: none;
     }
 
     #user-info button {
@@ -571,7 +572,8 @@
       cursor: pointer;
     }
 
-    #saved-sketches-section, #public-sketches-section {
+    #saved-sketches-section,
+    #public-sketches-section {
       min-height: 30%;
     }
 
@@ -672,7 +674,8 @@
       margin: 0;
     }
 
-    #sketches-loading, #public-sketches-loading {
+    #sketches-loading,
+    #public-sketches-loading {
       margin-left: 3px;
       font-weight: normal;
       display: none;
@@ -753,6 +756,7 @@
     }
 
     @keyframes shake {
+
       10%,
       90% {
         transform: translateX(-2px);
@@ -795,17 +799,18 @@
       <canvas id="canvas" width="512" height="512"></canvas>
       <div id="status"></div>
       <div class="toolbar">
-        <button type="button" onclick="clearCanvas()">Clear</button>
-        <button type="button" onclick="downloadCanvas()">Download</button>
-        <button type="button" onclick="saveToTimeline()">Snapshot</button>
-        <button id="save-sketch-btn" type="button" onclick="saveSketchForAccount()">Save Sketch</button>
+        <button type="button" title="Clear canvas" onclick="clearCanvas()">Clear</button>
+        <button type="button" title="Download canvas" onclick="downloadCanvas()">Download</button>
+        <button type="button" title="Add snapshot to timeline" onclick="saveToTimeline()">Snapshot</button>
+        <button id="save-sketch-btn" type="button" title="Save sketch to account" onclick="saveSketchForAccount()">Save
+          Sketch</button>
         <div id="timeline"></div>
       </div>
     </div>
     <div class="right-panel">
       <h2>AI Assist</h2>
       <div class="ai-assist-controls">
-        <button id="ai-assist-button" type="button" onclick="aiAssist()" class="ai-assist-btn">AI Assist</button>
+        <button id="ai-assist-button" class="ai-assist-btn" type="button" title="🪄" onclick="aiAssist()">AI Assist</button>
         <div class="ai-assist-group">
           <label for="style-count-select" title="Style count" class="ai-label">
             Styles:
@@ -838,7 +843,7 @@
       <div class="description-section">
         <label for="description-input" class="description-label">Description:
           <span class="info-icon" tabindex="0">ⓘ
-            <span class="info-tooltip">Required, example: "A blue starfish ⭐"</span>
+            <span class="info-tooltip">Required, example: "A blue starfish⭐🐟, or a banana 🍌"</span>
           </span>
         </label>
         <input id="description-input" type="text" maxlength="50" placeholder="Describe your sketch..."
@@ -846,6 +851,9 @@
       </div>
       <div class="style-tags-section">
         <div class="style-tags-label">Style Tags:
+          <span class="info-icon" tabindex="0">ⓘ
+            <span class="info-tooltip">Optional, but recommended! 5 selection max, you could add your own style tags"</span>
+          </span>
           <span id="style-tag-limit-msg"></span>
         </div>
         <div class="style-tags-row">

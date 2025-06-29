@@ -517,6 +517,10 @@ async function saveSketchForAccount(isPublic = false) {
   const sketchData = canvas.toDataURL('image/png')
 
   const authHeader = localStorage.getItem('githubToken')
+  if (!authHeader || !userId) {
+    alert('You must be logged in to save sketches')
+    return
+  }
   let userId
   let username
   let userAvatar
@@ -527,10 +531,6 @@ async function saveSketchForAccount(isPublic = false) {
     userAvatar = avatar_url
   } catch (e) {
     console.error('Error getting user info:', e.message)
-    return
-  }
-  if (!authHeader || !userId) {
-    alert('You must be logged in to save sketches')
     return
   }
 
