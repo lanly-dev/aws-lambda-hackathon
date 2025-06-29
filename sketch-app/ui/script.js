@@ -144,6 +144,7 @@ function updateUIBasedOnAuth() {
   // Enable/disable premium features based on login status
   const styleCountSelect = document.getElementById('style-count-select')
   const modelSelect = document.getElementById('model-select')
+  const savedSketchSection = document.getElementById('saved-sketches-section')
 
   // Update style count options
   Array.from(styleCountSelect.options).forEach((option, index) => {
@@ -160,6 +161,9 @@ function updateUIBasedOnAuth() {
   if (!isLoggedIn) {
     if (styleCountSelect.selectedIndex > 1) styleCountSelect.selectedIndex = 1 // 2 styles max for anonymous
     if (modelSelect.value.includes('stability')) modelSelect.selectedIndex = 0 // Default to Titan
+    savedSketchSection.style.display = 'none' // Hide saved sketches section
+  } else {
+    savedSketchSection.style.display = 'block' // Show saved sketches section
   }
 }
 
@@ -840,12 +844,21 @@ async function loadPublicSketchesIncremental(append = false) {
   }
 
   try {
-    const url = `/public-sketches?limit=5${publicSketchesNextCursor ? `&lastKey=${encodeURIComponent(publicSketchesNextCursor)}` : ''}`
-    const response = await fetch(url, { method: 'GET' })
-    if (!response.ok) throw new Error('Request failed with status ' + response.status)
-    const data = await response.json()
-    const sketches = data.sketches || []
-    publicSketchesNextCursor = data.nextCursor || null
+    const limit = 5
+    let sketches = []
+    let nextCursor = publicSketchesNextCursor
+
+    for (let i = 0; i < 2; i++) {
+      const url = `/public-sketches?limit=${limit}${nextCursor ? `&lastKey=${encodeURIComponent(nextCursor)}` : ''}`
+      const response = await fetch(url, { method: 'GET' })
+      if (!response.ok) throw new Error('Request failed with status ' + response.status)
+      const data = await response.json()
+      sketches = sketches.concat(data.sketches || [])
+      nextCursor = data.nextCursor || null
+      if (!nextCursor) break
+    }
+
+    publicSketchesNextCursor = githubToken ? nextCursor : null // Disable pagination if not logged in
 
     sketches.forEach(sk => {
       const card = createPublicSketchCard(sk)
