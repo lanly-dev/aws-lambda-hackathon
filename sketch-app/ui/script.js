@@ -280,12 +280,11 @@ async function aiAssist() {
   }, AI_ASSIST_COOLDOWN_MS)
   fillCanvasWhiteBg()
   const data = canvas.toDataURL()
-  document.getElementById('ai-options').innerHTML = ''
 
   const model = document.getElementById('model-select').value
+  const modelName = document.getElementById('model-select').selectedOptions[0].textContent
   const styleCount = parseInt(document.getElementById('style-count-select').value, 10) || 4
 
-  // Prepare headers with GitHub token if available
   const headers = { 'Content-Type': 'application/json' }
   if (githubToken) {
     headers.Authorization = `Bearer ${githubToken}`
@@ -301,15 +300,18 @@ async function aiAssist() {
   })
   const result = await res.json()
   const optionsDiv = document.getElementById('ai-options')
-  optionsDiv.innerHTML = '<div style="margin-bottom:6px">Pick a style:</div>'
+  optionsDiv.innerHTML = ''
+
+  const template = document.getElementById('ai-options-template').content
+
   result.styles.forEach((style) => {
-    const img = document.createElement('img')
+    const option = template.cloneNode(true)
+    const img = option.querySelector('.ai-option-img')
     img.src = `data:image/png;base64,${style.image}`
-    img.width = 160
     img.title = style.name
-    // Store metadata in data attributes
     img.dataset.description = description || ''
     img.dataset.styleTags = JSON.stringify(styleTags || [])
+    img.dataset.modelName = modelName
     img.onclick = () => {
       Array.from(optionsDiv.querySelectorAll('img')).forEach(im => im.classList.remove('selected'))
       img.classList.add('selected')
@@ -318,7 +320,7 @@ async function aiAssist() {
       i.src = `data:image/png;base64,${style.image}`
       document.getElementById('status').textContent = 'Applied: ' + style.name
     }
-    optionsDiv.appendChild(img)
+    optionsDiv.appendChild(option)
   })
   document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
 }
@@ -516,11 +518,6 @@ async function saveSketchForAccount(isPublic = false) {
   const canvas = document.getElementById('canvas')
   const sketchData = canvas.toDataURL('image/png')
 
-  const authHeader = localStorage.getItem('githubToken')
-  if (!authHeader || !userId) {
-    alert('You must be logged in to save sketches')
-    return
-  }
   let userId
   let username
   let userAvatar
@@ -531,6 +528,12 @@ async function saveSketchForAccount(isPublic = false) {
     userAvatar = avatar_url
   } catch (e) {
     console.error('Error getting user info:', e.message)
+    return
+  }
+
+  const authHeader = localStorage.getItem('githubToken')
+  if (!authHeader || !userId) {
+    alert('You must be logged in to save sketches')
     return
   }
 
@@ -547,12 +550,14 @@ async function saveSketchForAccount(isPublic = false) {
 
   // --- Retrieve description and styleTags from selected AI Assist image if present ---
   let description = ''
+  let modelName = ''
   let styleTags = []
   const aiOptionsDiv = document.getElementById('ai-options')
   if (aiOptionsDiv) {
     const selectedImg = aiOptionsDiv.querySelector('img.selected')
     if (selectedImg) {
       description = selectedImg.dataset.description || ''
+      modelName = selectedImg.dataset.modelName || ''
       try {
         styleTags = JSON.parse(selectedImg.dataset.styleTags || '[]')
       } catch { styleTags = [] }
@@ -577,6 +582,7 @@ async function saveSketchForAccount(isPublic = false) {
         sketch: sketchData,
         isPublic: isPublic ? 1 : 0,
         description,
+        modelName,
         styleTags
       })
     })
@@ -1009,6 +1015,7 @@ function showSketchMetaPopup(sketch, anchorEl, isPrivate = false) {
     <b>Owner:</b> ${sketch.username || sketch.userId || 'Anonymous'}<br>
     ${isPrivate ? (`<b>Public:</b> ${sketch.isPublic ? 'Yes' : 'No'}<br>`) : ''}
     <b>Description:</b> ${description ?? ''}<br>
+    <b>Model:</b> ${sketch.modelName || ''}<br>
     <b>Styles:</b> ${styleTags}<br>
     <b>Created:</b> ${created}<br>
   `
@@ -1106,11 +1113,6 @@ function restoreUIState() {
   } else {
     showLoginSection()
   }
-}
-
-// Call restoreUIState on page load
-window.onload = () => {
-  restoreUIState()
 }
 
 window.aiAssist = aiAssist

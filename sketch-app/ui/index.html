@@ -852,7 +852,8 @@
       <div class="style-tags-section">
         <div class="style-tags-label">Style Tags:
           <span class="info-icon" tabindex="0">ⓘ
-            <span class="info-tooltip">Optional, but recommended! 5 selection max, you could add your own style tags"</span>
+            <span class="info-tooltip">Optional, but recommended! 5 selection max, you could add your own style
+              tags"</span>
           </span>
           <span id="style-tag-limit-msg"></span>
         </div>
@@ -863,6 +864,13 @@
         <div id="style-tags"></div>
       </div>
       <div id="ai-options"></div>
+      <!-- Template for AI Assist Options -->
+      <template id="ai-options-template">
+        <div style="margin-bottom:6px">Pick a style:</div>
+        <div class="ai-option">
+          <img class="ai-option-img" width="160" title="" data-description="" data-style-tags="[]" data-model-name="">
+        </div>
+      </template>
       <!-- Saved Sketches Section -->
       <section id="saved-sketches-section">
         <h2>Saved Sketches
@@ -910,10 +918,6 @@
             </span>
           </div>
         </div>
-      </template>
-      <!-- Template for AI style options -->
-      <template id="ai-style-options-template">
-        <div style="margin-bottom:6px">Pick a style:</div>
       </template>
     </div>
   </div>
