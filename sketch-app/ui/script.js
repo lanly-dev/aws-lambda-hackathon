@@ -690,8 +690,7 @@ async function loadAccountSketchesIncremental(append = false) {
   const errorDiv = document.getElementById('sketches-error')
   const loadingDiv = document.getElementById('sketches-loading')
   const sketchesDiv = document.getElementById('sketches')
-  loadingDiv.textContent = 'Loading...'
-  loadingDiv.style.display = ''
+  loadingDiv.style.display = 'inline-block'
   if (!append && sketchesDiv) sketchesDiv.innerHTML = ''
   if (errorDiv) {
     errorDiv.textContent = ''
@@ -740,10 +739,9 @@ function loadAccountSketches() {
       else setTimeout(() => loadNextBatch(false), 0)
     })
   }
+
   loadNextBatch(true)
 }
-
-
 
 // --- Public Sketches Section ---
 // Helper to clone the public sketch card template and fill it
@@ -833,10 +831,7 @@ async function loadPublicSketches() {
   const loadingDiv = document.getElementById('public-sketches-loading')
   const errorDiv = document.getElementById('public-sketches-error')
   const sketchesDiv = document.getElementById('public-sketches')
-  if (loadingDiv) {
-    loadingDiv.style.display = ''
-    loadingDiv.textContent = 'Loading...'
-  }
+  loadingDiv.style.display = 'inline-block'
   if (sketchesDiv) sketchesDiv.style.display = 'none'
   if (errorDiv) {
     errorDiv.textContent = ''

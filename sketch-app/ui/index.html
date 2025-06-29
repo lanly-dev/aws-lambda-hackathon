@@ -692,6 +692,12 @@
       margin: 0;
     }
 
+    #sketches-loading, #public-sketches-loading {
+      margin-left: 3px;
+      font-weight: normal;
+      display: none;
+    }
+
     /* Sketch card template styles */
     .sketch-card {
       display: inline-block;
@@ -871,8 +877,10 @@
       <div id="ai-options"></div>
       <!-- Saved Sketches Section -->
       <section id="saved-sketches-section">
-        <h2>Saved Sketches <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button></h2>
-        <div id="sketches-loading" style="display:none;">Loading...</div>
+        <h2>Saved Sketches
+          <button id="refresh-sketches-btn" type="button" title="Refresh">🔄</button>
+          <span id="sketches-loading">Loading...</span>
+        </h2>
         <div id="sketches-error" class="error"></div>
         <div id="sketches"></div>
       </section>
@@ -892,8 +900,10 @@
       </template>
       <!-- Public Sketches Section -->
       <section id="public-sketches-section">
-        <h2>Public Sketches <button id="refresh-public-sketches-btn" type="button" title="Refresh">🔄</button></h2>
-        <div id="public-sketches-loading" style="display:none;">Loading...</div>
+        <h2>Public Sketches
+          <button id="refresh-public-sketches-btn" type="button" title="Refresh">🔄</button>
+          <span id="public-sketches-loading">Loading...</span>
+        </h2>
         <div id="public-sketches-error" class="error"></div>
         <div id="public-sketches"></div>
       </section>
