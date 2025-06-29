@@ -269,6 +269,8 @@ async function aiAssist() {
     document.getElementById('status').textContent = 'Please wait before using AI Assist again.'
     return
   }
+  const errorDiv = document.getElementById('ai-options-error')
+  errorDiv.style.display = 'none'
   aiAssistCooldown = true
   document.querySelector('button[onclick="aiAssist()"]')?.setAttribute('disabled', 'disabled')
   showSpinnerWithCountdown(AI_ASSIST_COOLDOWN_MS / 1000)
@@ -280,25 +282,36 @@ async function aiAssist() {
   }, AI_ASSIST_COOLDOWN_MS)
   fillCanvasWhiteBg()
   const data = canvas.toDataURL()
-
   const model = document.getElementById('model-select').value
   const modelName = document.getElementById('model-select').selectedOptions[0].textContent
   const styleCount = parseInt(document.getElementById('style-count-select').value, 10) || 4
 
   const headers = { 'Content-Type': 'application/json' }
-  if (githubToken) {
-    headers.Authorization = `Bearer ${githubToken}`
-  }
+  if (githubToken) headers.Authorization = `Bearer ${githubToken}`
 
   const styleTags = JSON.parse(localStorage.getItem('aiStyleTags') || '[]')
   const description = localStorage.getItem('aiDescription')
 
-  const res = await fetch('/ai-assist', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ image: data, model, styleCount, description, styleTags })
-  })
-  const result = await res.json()
+  let res
+  let result
+  try {
+    res = await fetch('/ai-assist', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ image: data, model, styleCount, description, styleTags })
+    })
+    result = await res.json()
+  } catch (error) {
+    errorDiv.textContent = `Error: ${error.message}`
+    errorDiv.style.display = 'block'
+    return
+  }
+  if (!res.ok) {
+    errorDiv.textContent = `Error: ${result.error ?? 'Unknown error'}`
+    errorDiv.style.display = 'block'
+    return
+  }
+
   const optionsDiv = document.getElementById('ai-options')
   optionsDiv.innerHTML = ''
 
@@ -323,6 +336,7 @@ async function aiAssist() {
     optionsDiv.appendChild(option)
   })
   document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
+  document.getElementById('ai-options-title').style.display = 'block'
 }
 
 // Add spinner CSS
@@ -718,7 +732,6 @@ async function loadAccountSketchesIncremental(append = false) {
     const data = await response.json()
     const sketches = data.sketches || []
     sketchesNextCursor = data.nextCursor || null
-    console.trace('createSketchCard')
     sketches.forEach(sk => {
       const card = createSketchCard(sk, userId)
       if (card) sketchesDiv.appendChild(card)

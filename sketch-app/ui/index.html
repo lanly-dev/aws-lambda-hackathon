@@ -223,8 +223,16 @@
     }
 
     #ai-options {
-      margin: 10px 0 8px 0;
       width: 100%;
+    }
+
+    #ai-options-title {
+      margin-bottom: 6px;
+      display: none;
+    }
+
+    #ai-options-error {
+      display: none;
     }
 
     #timeline {
@@ -871,8 +879,9 @@
       </div>
       <!-- Template for AI Assist Options -->
       <section id="ai-options-section">
-        <div style="margin-bottom:6px">Pick a style:</div>
+        <div id="ai-options-title">Pick a style:</div>
         <div id="ai-options"> </div>
+        <div id="ai-options-error" class="error"></div>
         <template id="ai-options-template">
           <img class="ai-option-img" width="160" title="" data-description="" data-style-tags="[]" data-model-name="">
         </template>
