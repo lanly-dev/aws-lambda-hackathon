@@ -1095,6 +1095,24 @@ async function deleteSketch(userId, sketchId) {
   }
 }
 
+// Restore UI state on page load
+function restoreUIState() {
+  const githubToken = localStorage.getItem('githubToken')
+  const currentUser = JSON.parse(localStorage.getItem('githubUser'))
+
+  if (githubToken && currentUser) {
+    showUserInfo()
+    updateUIBasedOnAuth()
+  } else {
+    showLoginSection()
+  }
+}
+
+// Call restoreUIState on page load
+window.onload = () => {
+  restoreUIState()
+}
+
 window.aiAssist = aiAssist
 window.clearCanvas = clearCanvas
 window.downloadCanvas = downloadCanvas
@@ -1108,12 +1126,14 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     loadPublicSketches()
     renderStyleTags()
+    restoreUIState()
     setupAddStyleTagRow()
     setupDescriptionField()
   })
 } else {
   loadPublicSketches()
   renderStyleTags()
+  restoreUIState()
   setupAddStyleTagRow()
   setupDescriptionField()
 }

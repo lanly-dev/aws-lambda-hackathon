@@ -84,3 +84,4 @@ ProviderDetails:
 - [GitHub OAuth Apps](https://github.com/settings/developers)
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli.html)
 - [AWS Secrets Manager](https://console.aws.amazon.com/secretsmanager/)
+- https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html
