@@ -688,16 +688,8 @@ async function loadAccountSketchesIncremental(append = false) {
   if (!authHeader || !userId) return
 
   const errorDiv = document.getElementById('sketches-error')
-  let loadingDiv = document.getElementById('sketches-loading')
+  const loadingDiv = document.getElementById('sketches-loading')
   const sketchesDiv = document.getElementById('sketches')
-  if (!loadingDiv) {
-    loadingDiv = document.createElement('div')
-    loadingDiv.id = 'sketches-loading'
-    loadingDiv.style.color = '#0078d7'
-    loadingDiv.style.marginBottom = '6px'
-    loadingDiv.style.fontWeight = '500'
-    errorDiv.parentNode.insertBefore(loadingDiv, errorDiv)
-  }
   loadingDiv.textContent = 'Loading...'
   loadingDiv.style.display = ''
   if (!append && sketchesDiv) sketchesDiv.innerHTML = ''
@@ -740,14 +732,15 @@ async function loadAccountSketchesIncremental(append = false) {
 
 function loadAccountSketches() {
   sketchesNextCursor = null
-  function loadNextBatch() {
-    loadAccountSketchesIncremental(true).then(() => {
+
+  function loadNextBatch(isFirstBatch = false) {
+    loadAccountSketchesIncremental(!isFirstBatch).then(() => {
       if (!sketchesNextCursor) return
-      if (window.requestIdleCallback) requestIdleCallback(loadNextBatch)
-      else setTimeout(loadNextBatch, 0)
+      if (window.requestIdleCallback) requestIdleCallback(() => loadNextBatch(false))
+      else setTimeout(() => loadNextBatch(false), 0)
     })
   }
-  loadNextBatch()
+  loadNextBatch(true)
 }
 
 
