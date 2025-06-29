@@ -673,8 +673,9 @@ function createSketchCard(sk, userId) {
   return node
 }
 
-// Patch loadAccountSketches to use the template from index.html
-loadAccountSketches = async function () {
+let sketchesNextCursor = null
+
+async function loadAccountSketchesIncremental(append = false) {
   const authHeader = localStorage.getItem('githubToken')
   let userId
   try {
@@ -699,54 +700,57 @@ loadAccountSketches = async function () {
   }
   loadingDiv.textContent = 'Loading...'
   loadingDiv.style.display = ''
-  if (sketchesDiv) sketchesDiv.style.display = 'none'
+  if (!append && sketchesDiv) sketchesDiv.innerHTML = ''
   if (errorDiv) {
     errorDiv.textContent = ''
     errorDiv.style.display = 'none'
   }
+
   try {
-    const response = await fetch(`/get-sketches?userId=${encodeURIComponent(userId)}`, {
+    const url = `/get-sketches?userId=${encodeURIComponent(userId)}&limit=10${sketchesNextCursor ? `&lastKey=${encodeURIComponent(sketchesNextCursor)}` : ''}`
+    const response = await fetch(url, {
       method: 'GET',
       headers: { Authorization: `Bearer ${authHeader}` }
     })
     if (!response.ok) throw new Error('Request failed with status ' + response.status)
     const data = await response.json()
     const sketches = data.sketches || []
-    const failedSketches = data.failedSketches || []
-    const div = document.getElementById('sketches')
-    div.innerHTML = ''
-    let errorMsg = ''
+    sketchesNextCursor = data.nextCursor || null
     sketches.forEach(sk => {
-      if (sk.error) {
-        errorMsg += `Error loading sketch ${sk.sketchId}: ${sk.error}\n`
-        return
-      }
       const card = createSketchCard(sk, userId)
-      if (card) div.appendChild(card)
+      if (card) sketchesDiv.appendChild(card)
     })
-    if (failedSketches.length > 0) {
-      errorMsg += `Some sketches could not be loaded: ${failedSketches.join(', ')}\n`
-    }
     loadingDiv.style.display = 'none'
     if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
-      if (errorMsg) {
-        errorDiv.textContent = errorMsg.trim()
-        errorDiv.style.display = 'block'
-      } else {
-        errorDiv.textContent = ''
-        errorDiv.style.display = 'none'
-      }
+      errorDiv.textContent = ''
+      errorDiv.style.display = 'none'
     }
+    return sketches.length > 0
   } catch (error) {
     loadingDiv.style.display = 'none'
-    if (sketchesDiv) sketchesDiv.style.display = ''
+    if (sketchesDiv) sketchesDiv.style.display = 'none'
     if (errorDiv) {
       errorDiv.textContent = 'Could not load sketches: ' + (error.message ?? error)
       errorDiv.style.display = 'block'
     }
+    return false
   }
 }
+
+function loadAccountSketches() {
+  sketchesNextCursor = null
+  function loadNextBatch() {
+    loadAccountSketchesIncremental(true).then(() => {
+      if (!sketchesNextCursor) return
+      if (window.requestIdleCallback) requestIdleCallback(loadNextBatch)
+      else setTimeout(loadNextBatch, 0)
+    })
+  }
+  loadNextBatch()
+}
+
+
 
 // --- Public Sketches Section ---
 // Helper to clone the public sketch card template and fill it

@@ -141,7 +141,6 @@ export const getSketchesHandler = async (event) => {
         body: JSON.stringify({ error: 'Unauthorized: Missing Authorization header' })
       }
     }
-    const isDevMode = process.env.MODE === 'dev'
 
     const urlParams = new URLSearchParams(event.queryStringParameters || {})
     const theId = urlParams.get('userId')
@@ -153,42 +152,63 @@ export const getSketchesHandler = async (event) => {
       }
     }
 
-    const userId = parseInt(theId)
+    const isDevMode = process.env.MODE === 'dev'
     if (isDevMode) return getSketchesMock(userId)
-    console.log('Parsed User ID:', userId)
 
-    const sketchesResult = await dynamo.send(new QueryCommand({
+    const userId = parseInt(theId)
+    // Pagination support
+    const limit = Math.max(1, Math.min(50, parseInt(urlParams.get('limit')) || 10))
+    const lastKey = urlParams.get('lastKey')
+
+    let ExclusiveStartKey
+    if (lastKey) {
+      try {
+        ExclusiveStartKey = JSON.parse(lastKey)
+      } catch {
+        return {
+          statusCode: 400,
+          headers: cors,
+          body: JSON.stringify({ error: 'Invalid lastKey format' })
+        }
+      }
+    }
+    const queryParams = {
       TableName: process.env.SKETCHES_TABLE,
       KeyConditionExpression: 'userId = :uid',
-      ExpressionAttributeValues: { ':uid': userId }
-    }))
-
+      ExpressionAttributeValues: { ':uid': userId },
+      Limit: limit
+    }
+    if (ExclusiveStartKey) queryParams.ExclusiveStartKey = ExclusiveStartKey
+    const sketchesResult = await dynamo.send(new QueryCommand(queryParams))
     const sketches = sketchesResult.Items || []
 
+    // Reconstruct base64 for each sketch
     for (const sketch of sketches) {
       const partsResult = await dynamo.send(new QueryCommand({
         TableName: process.env.SKETCH_PARTS_TABLE,
         KeyConditionExpression: 'sketchId = :sid',
         ExpressionAttributeValues: { ':sid': sketch.sketchId }
       }))
-
       const parts = partsResult.Items || []
-      parts.sort((a, b) => a.partNumber - b.partNumber) // Ensure parts are in order
-
-      sketch.sketch = parts.map(part => part.data).join('') // Reconstruct base64 string
+      parts.sort((a, b) => a.partNumber - b.partNumber)
+      sketch.sketch = parts.map(part => part.data).join('')
     }
-
+    // Prepare nextCursor if more data
+    let nextCursor = null
+    if (sketchesResult.LastEvaluatedKey) {
+      nextCursor = JSON.stringify(sketchesResult.LastEvaluatedKey)
+    }
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ sketches })
+      body: JSON.stringify({ sketches, nextCursor })
     }
   } catch (error) {
     console.error('Error retrieving sketches:', error)
     return {
       statusCode: 500,
       headers: cors,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Sketch App Internal Server Error' })
     }
   }
 }
@@ -203,7 +223,7 @@ export const setSketchPublicHandler = async (event) => {
     let body
     try {
       body = JSON.parse(event.body)
-    } catch (e) {
+    } catch {
       return {
         statusCode: 400,
         headers: cors,
@@ -257,7 +277,7 @@ export const setSketchPublicHandler = async (event) => {
 }
 
 // Handler to get public sketches
-export const getPublicSketchesHandler = async (event) => {
+export const getPublicSketchesHandler = async () => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
@@ -329,7 +349,7 @@ export const deleteSketchHandler = async (event) => {
     let body
     try {
       body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
-    } catch (e) {
+    } catch {
       return {
         statusCode: 400,
         headers: cors,
@@ -395,7 +415,7 @@ export const likeSketchHandler = async (event) => {
     let body
     try {
       body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
-    } catch (e) {
+    } catch {
       return {
         statusCode: 400,
         headers: cors,
