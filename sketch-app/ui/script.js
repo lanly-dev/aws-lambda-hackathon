@@ -223,26 +223,22 @@ const AI_ASSIST_COOLDOWN_MS = 30000 // 30 seconds
 
 function showSpinnerWithCountdown(seconds) {
   const status = document.getElementById('status')
+  const status2 = document.getElementById('ai-assist-status')
   let remaining = seconds
-  status.innerHTML = `<span class="spinner"></span> AI working... (${remaining}s)`
+  status.innerHTML = `<span class="spinner"></span>AI working... (${remaining}s)`
+  status2.innerHTML = `<span class="spinner"></span>AI working... (${remaining}s)`
   if (aiAssistTimer) clearInterval(aiAssistTimer)
   aiAssistTimer = setInterval(() => {
     remaining--
-    if (remaining > 0) status.innerHTML = `<span class="spinner"></span> Please wait... (${remaining}s)`
-    else {
+    if (remaining > 0) {
+      status2.innerHTML = `<span class="spinner"></span>Please wait before using AI Assist again.... (${remaining}s)`
+    } else {
       clearInterval(aiAssistTimer)
       aiAssistTimer = null
       status.textContent = ''
+      // status2.textContent = ''
     }
   }, 1000)
-}
-
-// Add spinner CSS
-if (!document.getElementById('ai-spinner-style')) {
-  const style = document.createElement('style')
-  style.id = 'ai-spinner-style'
-  style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
-  document.head.appendChild(style)
 }
 
 function downloadCanvas() {
@@ -335,17 +331,10 @@ async function aiAssist() {
     }
     optionsDiv.appendChild(option)
   })
-  document.getElementById('status').textContent = 'AI Assist complete! Pick a style.'
+  document.getElementById('status').textContent = 'AI Assist complete! Pick a style'
   document.getElementById('ai-options-title').style.display = 'block'
 }
 
-// Add spinner CSS
-if (!document.getElementById('ai-spinner-style')) {
-  const style = document.createElement('style')
-  style.id = 'ai-spinner-style'
-  style.textContent = '.spinner { display:inline-block; width:18px; height:18px; border:3px solid #bfcfff; border-top:3px solid #0078d7; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; } @keyframes spin { 100% { transform: rotate(360deg); } }'
-  document.head.appendChild(style)
-}
 // Default style tags
 const DEFAULT_TAGS = [
   'Cartoon', 'Watercolor', 'Oil Paint', 'Ink', 'Comic', '3D', 'Flat', 'Pixel', 'Pastel', 'Charcoal', 'Line Art', 'Pop Art', 'Anime', 'Realistic'

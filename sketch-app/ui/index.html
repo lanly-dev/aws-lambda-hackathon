@@ -107,7 +107,13 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
       vertical-align: middle;
-      margin-right: 6px;
+      margin-right: 3px;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     #login-section button:hover {
@@ -214,12 +220,21 @@
       box-shadow: none;
     }
 
-    #status {
+    #status,
+    #ai-assist-status {
       color: #0078d7;
-      font-weight: 500;
       margin-bottom: 8px;
       text-align: center;
       font-size: 1rem;
+    }
+
+    #ai-assist-status {
+      font-size: small;
+      margin-left: 3px;
+    }
+
+    #ai-assist-status .spinner {
+      vertical-align: -2px;
     }
 
     #ai-options {
@@ -298,8 +313,7 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .ai-assist-btn {
@@ -819,7 +833,9 @@
       </div>
     </div>
     <div class="right-panel">
-      <h2>AI Assist</h2>
+      <h2>AI Assist
+        <span id="ai-assist-status"></span>
+      </h2>
       <div class="ai-assist-controls">
         <button id="ai-assist-button" class="ai-assist-btn" type="button" title="🪄" onclick="aiAssist()">
           AI Assist
