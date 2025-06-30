@@ -3,7 +3,7 @@
 [![AWS Lambda](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=Lambda&color=orange&shape=parallelogram)](https://aws.amazon.com/lambda/)
 [![Node.js](https://huyhieu.val.run/huyhieu?url=nodejs.org&label=node.js&value=22.x&color=green&shape=parallelogram)](https://nodejs.org/)
 [![DynamoDB](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=DynamoDB&color=Blue&shape=parallelogram)](https://aws.amazon.com/dynamodb/)
-[![Bedrock](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=DynamoDB&color=purple&shape=parallelogram)](https://aws.amazon.com/bedrock/)
+[![Bedrock](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=Bedrock&color=purple&shape=parallelogram)](https://aws.amazon.com/bedrock/)
 
 A fully serverless sketch application with AI-powered style transformation, built for the [**AWS Lambda Hackathon 2025**](https://awslambdahackathon.devpost.com). Draw, create, and transform your sketches using Amazon Bedrock's Titan Image Generator, all powered by AWS Lambda functions.
 
