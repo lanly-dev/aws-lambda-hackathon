@@ -3,6 +3,6 @@
     "efix": "eslint . --ext .js --fix"
   },
   "devDependencies": {
-    "eslint": "^9.29.0"
+    "eslint": "^9.30.0"
   }
 }
