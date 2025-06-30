@@ -465,18 +465,19 @@ export const likeSketchHandler = async (event) => {
         body: JSON.stringify({ error: 'Invalid JSON' })
       }
     }
-    const { userId, sketchId } = body
-    if (!userId || !sketchId) {
+    // Accept ownerId (sketch owner's userId) and userId (liker's userId)
+    const { userId, ownerId, sketchId } = body
+    if (!userId || !ownerId || !sketchId) {
       return {
         statusCode: 400,
         headers: cors,
-        body: JSON.stringify({ error: 'Missing userId or sketchId' })
+        body: JSON.stringify({ error: 'Missing userId, ownerId, or sketchId' })
       }
     }
-    // Fetch the sketch using GetCommand (userId and sketchId are the key schema)
+    // Fetch the sketch using ownerId and sketchId (composite key)
     const getResult = await dynamo.send(new GetCommand({
       TableName: process.env.SKETCHES_TABLE,
-      Key: { userId, sketchId }
+      Key: { userId: ownerId, sketchId }
     }))
     const sketch = getResult.Item
     if (!sketch) {
@@ -501,7 +502,7 @@ export const likeSketchHandler = async (event) => {
     // Update likedBy and likeCount
     await dynamo.send(new UpdateCommand({
       TableName: process.env.SKETCHES_TABLE,
-      Key: { userId, sketchId },
+      Key: { userId: ownerId, sketchId },
       UpdateExpression: 'SET likedBy = :likedBy, likeCount = :likeCount',
       ExpressionAttributeValues: {
         ':likedBy': likedBy,

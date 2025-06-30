@@ -828,7 +828,7 @@ function createPublicSketchCard(sk) {
           'Content-Type': 'application/json',
           Authorization: localStorage.getItem('githubToken') || ''
         },
-        body: JSON.stringify({ sketchId: sk.sketchId, userId: user.id })
+        body: JSON.stringify({ sketchId: sk.sketchId, ownerId: sk.userId, userId: user.id })
       })
       if (!res.ok) throw new Error('Failed to like/unlike sketch')
       const data = await res.json()
