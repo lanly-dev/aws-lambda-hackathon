@@ -881,7 +881,7 @@ async function loadPublicSketchesIncremental(append = false) {
     let sketches = []
     let nextCursor = publicSketchesNextCursor
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       const url = apiUrl(`/public-sketches?limit=${limit}${nextCursor ? `&lastKey=${encodeURIComponent(nextCursor)}` : ''}`)
       const response = await fetch(url, { method: 'GET' })
       if (!response.ok) throw new Error('Request failed with status ' + response.status)

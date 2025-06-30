@@ -251,7 +251,6 @@
     }
 
     #timeline {
-      width: 100%;
       max-width: 100%;
       display: flex;
       flex-direction: row;
@@ -835,10 +834,11 @@
         <button type="button" title="Clear canvas" onclick="clearCanvas()">Clear</button>
         <button type="button" title="Download canvas" onclick="downloadCanvas()">Download</button>
         <button type="button" title="Add snapshot to timeline" onclick="saveToTimeline()">Snapshot</button>
-        <button id="save-sketch-btn" type="button" title="Save sketch to account" onclick="saveSketchForAccount()">Save
-          Sketch</button>
-        <div id="timeline"></div>
+        <button id="save-sketch-btn" type="button" title="Save sketch to account" onclick="saveSketchForAccount()">
+          Save Sketch
+        </button>
       </div>
+      <div id="timeline"></div>
     </div>
     <div class="right-panel">
       <h2>AI Assist
