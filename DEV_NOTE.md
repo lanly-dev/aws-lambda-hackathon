@@ -93,7 +93,10 @@
 ```bash
 sam build
 sam local start-api --env-vars env.json
+# Or for local network
+sam local start-api --env-vars env.json --host 0.0.0.0
 ```
+- Note: Running sam build generates the .aws-sam directory. Once built, subsequent code changes won’t reflect unless you rebuild. Without using sam build, the app runs directly from the codebase—no restart or reload required.
 
 ### Deployment
 ```bash
