@@ -729,10 +729,19 @@ async function loadAccountSketchesIncremental(append = false) {
     const data = await response.json()
     const sketches = data.sketches || []
     sketchesNextCursor = data.nextCursor || null
-    sketches.forEach(sk => {
-      const card = createSketchCard(sk, userId)
-      if (card) sketchesDiv.appendChild(card)
-    })
+    if (sketchesDiv) sketchesDiv.innerHTML = '' // Clear before appending
+    if (sketches.length === 0 && (!sketchesNextCursor || !append)) {
+      // Show message if no sketches
+      const msg = document.createElement('div')
+      msg.className = 'no-sketches-msg'
+      msg.textContent = 'You have no saved sketches yet.'
+      sketchesDiv.appendChild(msg)
+    } else {
+      sketches.forEach(sk => {
+        const card = createSketchCard(sk, userId)
+        if (card) sketchesDiv.appendChild(card)
+      })
+    }
     loadingDiv.style.display = 'none'
     if (sketchesDiv) sketchesDiv.style.display = ''
     if (errorDiv) {
