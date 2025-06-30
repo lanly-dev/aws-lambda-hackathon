@@ -239,7 +239,7 @@ function showSpinnerWithCountdown(seconds) {
   aiAssistTimer = setInterval(() => {
     remaining--
     if (remaining > 0) {
-      status2.innerHTML = `<span class="spinner"></span>Please wait before using AI Assist again.... (${remaining}s)`
+      status2.innerHTML = `<span class="spinner"></span>Please wait before using AI Assist again... (${remaining}s)`
     } else {
       clearInterval(aiAssistTimer)
       aiAssistTimer = null

@@ -75,6 +75,7 @@ export const handler = async (event) => {
       }
     })
 
+    console.log('⭐⭐ User response status:', userResponse.status, userResponse.statusText)
     if (!userResponse.ok) {
       return {
         statusCode: 400,
