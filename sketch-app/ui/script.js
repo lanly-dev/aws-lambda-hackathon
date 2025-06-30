@@ -730,7 +730,7 @@ async function loadAccountSketchesIncremental(append = false) {
     const sketches = data.sketches || []
     sketchesNextCursor = data.nextCursor || null
 
-    if (sketches.length === 0 && (!sketchesNextCursor || !append)) {
+    if (sketches.length === 0 && !sketchesNextCursor && !append) {
       // Show message if no sketches
       const msg = document.createElement('div')
       msg.className = 'no-sketches-msg'
