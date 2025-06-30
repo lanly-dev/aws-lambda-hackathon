@@ -1,4 +1,4 @@
-# 🎨 AI-Powered Sketch App - AWS Lambda Hackathon 2025
+# <img src='https://raw.githubusercontent.com/lanly-dev/aws-lambda-hackathon/refs/heads/main/media/logo2.png' width='25' style="margin-bottom:-3px"/> AI-Powered Sketch App - AWS Lambda Hackathon 2025
 
 [![AWS Lambda](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=Lambda&color=orange&shape=parallelogram)](https://aws.amazon.com/lambda/)
 [![Node.js](https://huyhieu.val.run/huyhieu?url=nodejs.org&label=node.js&value=22.x&color=green&shape=parallelogram)](https://nodejs.org/)
