@@ -1,9 +1,9 @@
 # 🎨 AI-Powered Sketch App - AWS Lambda Hackathon 2025
 
-[![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws)](https://aws.amazon.com/lambda/)
-[![Node.js](https://img.shields.io/badge/Node.js-22.x-green?logo=node.js)](https://nodejs.org/)
-[![DynamoDB](https://img.shields.io/badge/AWS-DynamoDB-blue?logo=amazon-dynamodb)](https://aws.amazon.com/dynamodb/)
-[![Bedrock](https://img.shields.io/badge/AWS-Bedrock-purple?logo=amazon-aws)](https://aws.amazon.com/bedrock/)
+[![AWS Lambda](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=Lambda&color=orange&shape=parallelogram)](https://aws.amazon.com/lambda/)
+[![Node.js](https://huyhieu.val.run/huyhieu?url=nodejs.org&label=node.js&value=22.x&color=green&shape=parallelogram)](https://nodejs.org/)
+[![DynamoDB](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=DynamoDB&color=Blue&shape=parallelogram)](https://aws.amazon.com/dynamodb/)
+[![Bedrock](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=DynamoDB&color=purple&shape=parallelogram)](https://aws.amazon.com/bedrock/)
 
 A fully serverless sketch application with AI-powered style transformation, built for the [**AWS Lambda Hackathon 2025**](https://awslambdahackathon.devpost.com). Draw, create, and transform your sketches using Amazon Bedrock's Titan Image Generator, all powered by AWS Lambda functions.
 
