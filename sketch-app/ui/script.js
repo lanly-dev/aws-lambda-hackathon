@@ -227,7 +227,7 @@ function clearCanvas() {
 
 let aiAssistCooldown = false
 let aiAssistTimer = null
-const AI_ASSIST_COOLDOWN_MS = 10000 // 10 seconds
+const AI_ASSIST_COOLDOWN_MS = 30000 // 30 seconds
 
 function showSpinnerWithCountdown(seconds) {
   const status = document.getElementById('status')
