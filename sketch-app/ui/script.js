@@ -8,6 +8,14 @@ const GITHUB_REDIRECT_URI = window.location.origin + window.location.pathname //
 let githubToken = localStorage.getItem('githubToken')
 let currentUser = null
 
+// --- API base path detection ---
+const API_BASE_PATH = window.location.pathname.startsWith('/Prod') ? '/Prod' : ''
+
+// Helper to prefix API requests
+function apiUrl(path) {
+  return API_BASE_PATH + path
+}
+
 function loginWithGitHub() {
   const loginButton = document.getElementById('github-login-btn')
   const errorDiv = document.getElementById('login-error')
@@ -28,7 +36,7 @@ async function exchangeCodeForToken(code) {
     errorDiv.textContent = ''
 
     // Call our backend OAuth endpoint
-    const response = await fetch('/auth/github', {
+    const response = await fetch(apiUrl('/auth/github'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code })
@@ -225,7 +233,7 @@ function showSpinnerWithCountdown(seconds) {
   const status = document.getElementById('status')
   const status2 = document.getElementById('ai-assist-status')
   let remaining = seconds
-  status.innerHTML = `<span class="spinner"></span>AI working... (${remaining}s)`
+  status.innerHTML = '<span class="spinner"></span>AI working...'
   status2.innerHTML = `<span class="spinner"></span>AI working... (${remaining}s)`
   if (aiAssistTimer) clearInterval(aiAssistTimer)
   aiAssistTimer = setInterval(() => {
@@ -236,7 +244,7 @@ function showSpinnerWithCountdown(seconds) {
       clearInterval(aiAssistTimer)
       aiAssistTimer = null
       status.textContent = ''
-      // status2.textContent = ''
+      status2.textContent = ''
     }
   }, 1000)
 }
@@ -291,7 +299,7 @@ async function aiAssist() {
   let res
   let result
   try {
-    res = await fetch('/ai-assist', {
+    res = await fetch(apiUrl('/ai-assist'), {
       method: 'POST',
       headers,
       body: JSON.stringify({ image: data, model, styleCount, description, styleTags })
@@ -573,7 +581,7 @@ async function saveSketchForAccount(isPublic = false) {
   const sketchId = 'sketch-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
   try {
-    const response = await fetch('/save-sketch', {
+    const response = await fetch(apiUrl('/save-sketch'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -609,7 +617,7 @@ async function toggleSketchPublic(userId, sketchId, isPublic, callback) {
     return
   }
   try {
-    const response = await fetch('/set-sketch-public', {
+    const response = await fetch(apiUrl('/set-sketch-public'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -712,7 +720,7 @@ async function loadAccountSketchesIncremental(append = false) {
   }
 
   try {
-    const url = `/get-sketches?userId=${encodeURIComponent(userId)}&limit=5${sketchesNextCursor ? `&lastKey=${encodeURIComponent(sketchesNextCursor)}` : ''}`
+    const url = apiUrl(`/get-sketches?userId=${encodeURIComponent(userId)}&limit=5${sketchesNextCursor ? `&lastKey=${encodeURIComponent(sketchesNextCursor)}` : ''}`)
     const response = await fetch(url, {
       method: 'GET',
       headers: { Authorization: `Bearer ${authHeader}` }
@@ -805,7 +813,7 @@ function createPublicSketchCard(sk) {
         alert('You must be logged in to like sketches')
         return
       }
-      const res = await fetch('/like-sketch', {
+      const res = await fetch(apiUrl('/like-sketch'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -865,7 +873,7 @@ async function loadPublicSketchesIncremental(append = false) {
     let nextCursor = publicSketchesNextCursor
 
     for (let i = 0; i < 2; i++) {
-      const url = `/public-sketches?limit=${limit}${nextCursor ? `&lastKey=${encodeURIComponent(nextCursor)}` : ''}`
+      const url = apiUrl(`/public-sketches?limit=${limit}${nextCursor ? `&lastKey=${encodeURIComponent(nextCursor)}` : ''}`)
       const response = await fetch(url, { method: 'GET' })
       if (!response.ok) throw new Error('Request failed with status ' + response.status)
       const data = await response.json()
@@ -1094,7 +1102,7 @@ async function deleteSketch(userId, sketchId) {
     return
   }
   try {
-    const response = await fetch('/delete-sketch', {
+    const response = await fetch(apiUrl('/delete-sketch'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
     Runtime: nodejs22.x
+    MemorySize: 128
     Timeout: 30
 
 Resources:
@@ -12,7 +13,7 @@ Resources:
     Properties:
       CodeUri: sketch-app/
       Handler: index.handler
-      MemorySize: 16
+      # MemorySize: 16
       Events:
         SketchApi:
           Type: Api
@@ -31,10 +32,16 @@ Resources:
       CodeUri: ./ai-assist/
       Handler: index.handler
       Runtime: nodejs22.x
-      MemorySize: 64
+      # MemorySize: 64
       Environment:
         Variables:
-          AI_MODE: dev
+          AI_MODE: prod
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: arn:aws:bedrock:us-west-2::foundation-model/amazon.titan-image-generator-v2:0
       Events:
         AiAssistApi:
           Type: Api
@@ -48,12 +55,12 @@ Resources:
       CodeUri: ./sketch-utils/
       Handler: index.handler
       Runtime: nodejs22.x
-      MemorySize: 128
+      # MemorySize: 128
       Environment:
         Variables:
           SKETCHES_TABLE: !Ref SketchTable
           SKETCH_PARTS_TABLE: !Ref SketchPartsTable
-          MODE: dev
+          MODE: prod
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SketchTable
@@ -140,8 +147,7 @@ Resources:
       CodeUri: ./github-oauth/
       Handler: index.handler
       Runtime: nodejs22.x
-      MemorySize: 256
-      Timeout: 30
+      # MemorySize: 128
       Environment:
         Variables:
           GITHUB_CLIENT_ID: !Ref GitHubClientId
@@ -161,7 +167,7 @@ Parameters:
   GitHubClientSecret:
     Type: String
     Description: GitHub OAuth App Client Secret
-    NoEcho: true
+    # NoEcho: true
 
 Outputs:
   SketchApi:
