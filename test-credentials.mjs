@@ -1,6 +1,6 @@
 // Test GitHub OAuth credentials
 const GITHUB_CLIENT_ID = 'Ov23liNUvc7QG2vvoSfM'
-const GITHUB_CLIENT_SECRET = '1a5c374ee8cadc95eb7f2049332dd0f343c2d268'
+const GITHUB_CLIENT_SECRET = ''
 
 console.log('Testing GitHub OAuth credentials...')
 
