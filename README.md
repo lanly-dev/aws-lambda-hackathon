@@ -1,5 +1,6 @@
 # <img src='https://raw.githubusercontent.com/lanly-dev/aws-lambda-hackathon/refs/heads/main/media/logo2.png' width='35' style="margin-bottom:-8px;margin-right:5px"/> AI-Powered Sketch App - AWS Lambda Hackathon 2025
 
+<!-- these may not working of API of huyhieu changed -->
 [![AWS Lambda](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=Lambda&color=orange&shape=parallelogram)](https://aws.amazon.com/lambda/)
 [![Node.js](https://huyhieu.val.run/huyhieu?url=nodejs.org&label=node.js&value=22.x&color=green&shape=parallelogram)](https://nodejs.org/)
 [![DynamoDB](https://huyhieu.val.run/huyhieu?url=aws.amazon.com&label=AWS&value=DynamoDB&color=Blue&shape=parallelogram)](https://aws.amazon.com/dynamodb/)

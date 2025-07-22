@@ -119,3 +119,10 @@ lambda/
 - [GitHub OAuth Apps](https://github.com/settings/developers)
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli.html)
 - [Amazon Bedrock Models](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html)
+
+### Cleanup
+```
+sam delete
+```
+- Checkout cloudformation and lambda if there still leftover stack
+- Remove GitHub app
