@@ -8,8 +8,9 @@
 
 A fully serverless sketch application with AI-powered style transformation, built for the [**AWS Lambda Hackathon 2025**](https://awslambdahackathon.devpost.com). Draw, create, and transform your sketches using Amazon Bedrock's Titan Image Generator, all powered by AWS Lambda functions.
 
-## 🚀 Live Demo
-- https://8b8qylx3db.execute-api.us-west-2.amazonaws.com/Prod
+## 🚀 Demo
+- ~~https://8b8qylx3db.execute-api.us-west-2.amazonaws.com/Prod~~
+- [![Sketch App with AI Assist](http://img.youtube.com/vi/8U6G00AOqbU/0.jpg)](http://www.youtube.com/watch?v=8U6G00AOqbU "Sketch App with AI Assist")
 
 ## ✨ Features
 - **Snapshot Timeline**: Visual timeline of your drawing iterations
